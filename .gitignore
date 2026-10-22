@@ -1,0 +1,6 @@
+# 本地私有文件：不纳入版本管理（内含 GitHub Token 等凭据）
+002.产品原型/beiyyong
+
+# 防止凭据文件被误提交
+.env
+.mcp.json
