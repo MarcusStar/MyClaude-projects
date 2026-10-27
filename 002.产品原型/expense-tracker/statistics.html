@@ -1,0 +1,486 @@
+<!DOCTYPE html>
+
+<html class="w-full h-full overflow-hidden" lang="zh-CN">
+<head>
+<meta charset="utf-8"/>
+<meta content="width=device-width, initial-scale=1.0" name="viewport"/>
+<title>月度统计 · 小账本</title>
+<script src="https://modao.cc/agent-py/static/source/js/tailwindcss.js"></script>
+<script src="https://modao.cc/agent-py/static/source/js/iconify-icon.min.js"></script>
+<style>
+  :root { --ink:#17241F; --muted:#8A968F; --line:#ECEFED; --green:#1F8A5C; --coral:#E8654F; }
+  * { -webkit-tap-highlight-color: transparent; }
+  body { font-family:-apple-system,BlinkMacSystemFont,"PingFang SC","Hiragino Sans GB","Microsoft YaHei",sans-serif; color:var(--ink); }
+  .num { font-variant-numeric: tabular-nums; letter-spacing:-0.02em; }
+  .scroll-area { scrollbar-width:none; -ms-overflow-style:none; }
+  .scroll-area::-webkit-scrollbar { display:none; width:0; height:0; }
+  .card { background:#fff; border:1px solid var(--line); border-radius:20px; }
+  .donut-seg { transition: stroke-width .2s ease, opacity .2s ease; }
+  .chart-bar { transition: opacity .2s ease; }
+  .chart-bar:hover { opacity:.75; }
+  .tip { position:absolute; pointer-events:none; background:#17241F; color:#fff; font-size:10.5px; padding:5px 8px; border-radius:8px; white-space:nowrap; transform:translateX(-50%); z-index:5; }
+</style>
+</head>
+<body class="w-full h-full m-0 overflow-hidden flex items-center justify-center bg-[#E8EDE9]">
+<div class="w-full h-full max-w-[393px] max-h-[852px] bg-[#F4F7F5] flex flex-col overflow-hidden relative">
+<header class="shrink-0 px-5 pt-5 pb-3 bg-[#F4F7F5]">
+<div class="flex items-center justify-between">
+<div>
+<p class="text-[11px] text-[#8A968F] mb-1">月度报告</p>
+<h1 class="text-[20px] font-semibold leading-none">消费分析</h1>
+</div>
+<div class="flex items-center gap-2">
+<a aria-label="筛选" class="w-9 h-9 rounded-full bg-white border border-[#ECEFED] flex items-center justify-center text-[#4B5A53]" href="https://modao.cc/agent-py/workspace/6addbaacde2fb8a03b1662d7/expense-tracker.html/search.html?render_html=true">
+<iconify-icon class="text-[17px]" icon="ph:funnel"></iconify-icon>
+</a>
+<a aria-label="导出" class="w-9 h-9 rounded-full bg-white border border-[#ECEFED] flex items-center justify-center text-[#4B5A53]" href="https://modao.cc/agent-py/workspace/6addbaacde2fb8a03b1662d7/expense-tracker.html/export.html?render_html=true">
+<iconify-icon class="text-[17px]" icon="ph:export"></iconify-icon>
+</a>
+</div>
+</div>
+</header>
+<main class="flex-1 min-h-0 overflow-y-auto overflow-x-hidden scroll-area px-5 pb-[104px]" style="scrollbar-width:none;-ms-overflow-style:none;">
+<!-- 月份切换 -->
+<div class="flex items-center justify-between">
+<button aria-label="上个月" class="w-8 h-8 rounded-full bg-white border border-[#ECEFED] flex items-center justify-center text-[#4B5A53] active:bg-[#F1F5F2]" onclick="changeMonth(-1)" type="button">
+<iconify-icon class="text-[15px]" icon="ph:caret-left"></iconify-icon>
+</button>
+<div class="text-center">
+<p class="text-[15px] font-semibold" id="monthLabel">2026 年 10 月</p>
+<p class="text-[10.5px] text-[#8A968F] mt-0.5" id="monthHint">已记录 24 天 · 36 笔</p>
+</div>
+<button aria-label="下个月" class="w-8 h-8 rounded-full bg-white border border-[#ECEFED] flex items-center justify-center text-[#4B5A53] active:bg-[#F1F5F2]" onclick="changeMonth(1)" type="button">
+<iconify-icon class="text-[15px]" icon="ph:caret-right"></iconify-icon>
+</button>
+</div>
+<!-- 关键数字卡片 -->
+<section class="mt-4 grid grid-cols-3 gap-2">
+<div class="card px-3 py-3.5">
+<p class="text-[10.5px] text-[#8A968F]">本月支出</p>
+<p class="num text-[16px] font-semibold mt-1.5" id="kpiExpense">4,286.40</p>
+<p class="text-[10px] text-[#E8654F] mt-1 flex items-center gap-0.5" id="kpiExpenseMoM">
+<iconify-icon class="text-[10px]" icon="ph:arrow-up-right"></iconify-icon>环比 8.2%
+          </p>
+</div>
+<div class="card px-3 py-3.5">
+<p class="text-[10.5px] text-[#8A968F]">本月收入</p>
+<p class="num text-[16px] font-semibold mt-1.5" id="kpiIncome">7,707.00</p>
+<p class="text-[10px] text-[#1F8A5C] mt-1 flex items-center gap-0.5" id="kpiIncomeMoM">
+<iconify-icon class="text-[10px]" icon="ph:arrow-up-right"></iconify-icon>环比 3.1%
+          </p>
+</div>
+<div class="card px-3 py-3.5">
+<p class="text-[10.5px] text-[#8A968F]">结余</p>
+<p class="num text-[16px] font-semibold mt-1.5" id="kpiBalance">3,420.60</p>
+<p class="text-[10px] text-[#8A968F] mt-1">储蓄率 44.4%</p>
+</div>
+</section>
+<div class="hidden mt-2 text-[10.5px] text-[#B4BDB7] flex items-center gap-1 justify-end" id="noMoM">
+<iconify-icon class="text-[11px]" icon="ph:info"></iconify-icon>上月无数据，暂不展示环比
+      </div>
+<!-- 环形分类占比 -->
+<section class="mt-4 card p-4">
+<div class="flex items-center justify-between">
+<div>
+<h2 class="text-[14px] font-semibold">支出分类占比</h2>
+<p class="text-[10.5px] text-[#8A968F] mt-0.5">共 12 个分类 · 前 7 项展开</p>
+</div>
+<a class="text-[11px] text-[#1F8A5C] flex items-center gap-0.5" href="https://modao.cc/agent-py/workspace/6addbaacde2fb8a03b1662d7/expense-tracker.html/category-detail.html?render_html=true">
+            分类明细 <iconify-icon class="text-[11px]" icon="ph:caret-right"></iconify-icon>
+</a>
+</div>
+<div class="mt-3 flex items-center gap-3">
+<div class="relative shrink-0 w-[142px] h-[142px]">
+<svg class="w-full h-full -rotate-90" viewbox="0 0 120 120">
+<circle cx="60" cy="60" fill="none" r="46" stroke="#F2F5F3" stroke-width="15"></circle>
+<circle class="donut-seg" cx="60" cy="60" data-name="餐饮" data-value="1286.40" fill="none" r="46" stroke="#1F8A5C" stroke-dasharray="84.8 204.2" stroke-dashoffset="0" stroke-linecap="butt" stroke-width="15"></circle>
+<circle class="donut-seg" cx="60" cy="60" data-name="购物" data-value="842.00" fill="none" r="46" stroke="#2FA873" stroke-dasharray="55.5 233.5" stroke-dashoffset="-84.8" stroke-linecap="butt" stroke-width="15"></circle>
+<circle class="donut-seg" cx="60" cy="60" data-name="居住" data-value="728.80" fill="none" r="46" stroke="#E9A23B" stroke-dasharray="48.0 241.0" stroke-dashoffset="-140.3" stroke-linecap="butt" stroke-width="15"></circle>
+<circle class="donut-seg" cx="60" cy="60" data-name="娱乐" data-value="496.00" fill="none" r="46" stroke="#F0C97B" stroke-dasharray="32.7 256.3" stroke-dashoffset="-188.3" stroke-linecap="butt" stroke-width="15"></circle>
+<circle class="donut-seg" cx="60" cy="60" data-name="零食饮料" data-value="368.00" fill="none" r="46" stroke="#6BBFA0" stroke-dasharray="24.3 264.7" stroke-dashoffset="-221.0" stroke-linecap="butt" stroke-width="15"></circle>
+<circle class="donut-seg" cx="60" cy="60" data-name="服饰" data-value="276.00" fill="none" r="46" stroke="#8CD3E0" stroke-dasharray="18.2 270.8" stroke-dashoffset="-245.3" stroke-linecap="butt" stroke-width="15"></circle>
+<circle class="donut-seg" cx="60" cy="60" data-name="其他" data-value="289.20" fill="none" r="46" stroke="#C9D6CF" stroke-dasharray="19.1 269.9" stroke-dashoffset="-263.5" stroke-linecap="butt" stroke-width="15"></circle>
+</svg>
+<div class="absolute inset-0 flex flex-col items-center justify-center pointer-events-none">
+<p class="text-[10px] text-[#8A968F]">总支出</p>
+<p class="num text-[16px] font-semibold mt-0.5">¥4,286</p>
+</div>
+</div>
+<div class="flex-1 space-y-1.5">
+<div class="flex items-center gap-2 text-[11px]">
+<span class="w-2 h-2 rounded-full bg-[#1F8A5C]"></span>
+<span class="text-[#4B5A53] flex-1">餐饮</span>
+<span class="num font-medium">30.0%</span>
+</div>
+<div class="flex items-center gap-2 text-[11px]">
+<span class="w-2 h-2 rounded-full bg-[#2FA873]"></span>
+<span class="text-[#4B5A53] flex-1">购物</span>
+<span class="num font-medium">19.6%</span>
+</div>
+<div class="flex items-center gap-2 text-[11px]">
+<span class="w-2 h-2 rounded-full bg-[#E9A23B]"></span>
+<span class="text-[#4B5A53] flex-1">居住</span>
+<span class="num font-medium">17.0%</span>
+</div>
+<div class="flex items-center gap-2 text-[11px]">
+<span class="w-2 h-2 rounded-full bg-[#F0C97B]"></span>
+<span class="text-[#4B5A53] flex-1">娱乐</span>
+<span class="num font-medium">11.6%</span>
+</div>
+<div class="flex items-center gap-2 text-[11px]">
+<span class="w-2 h-2 rounded-full bg-[#6BBFA0]"></span>
+<span class="text-[#4B5A53] flex-1">零食饮料</span>
+<span class="num font-medium">8.6%</span>
+</div>
+<div class="flex items-center gap-2 text-[11px]">
+<span class="w-2 h-2 rounded-full bg-[#8CD3E0]"></span>
+<span class="text-[#4B5A53] flex-1">服饰</span>
+<span class="num font-medium">6.4%</span>
+</div>
+<div class="flex items-center gap-2 text-[11px]">
+<span class="w-2 h-2 rounded-full bg-[#C9D6CF]"></span>
+<span class="text-[#4B5A53] flex-1">其他</span>
+<span class="num font-medium">6.8%</span>
+</div>
+</div>
+</div>
+<p class="text-[10px] text-[#9AA69F] mt-3 flex items-center gap-1">
+<iconify-icon class="text-[11px]" icon="ph:info"></iconify-icon>
+          分类超过 8 个时，尾部小项自动合并为「其他」
+        </p>
+</section>
+<!-- 每日支出柱状图 -->
+<section class="mt-4 card p-4 relative">
+<div class="flex items-start justify-between">
+<div>
+<h2 class="text-[14px] font-semibold">每日支出</h2>
+<p class="text-[10.5px] text-[#8A968F] mt-0.5">10 月 1 日 - 24 日 · 点击柱子查看当日明细</p>
+</div>
+<div class="text-right">
+<p class="text-[10px] text-[#8A968F]">日均</p>
+<p class="num text-[13px] font-semibold text-[#1F8A5C]">¥178.60</p>
+</div>
+</div>
+<div class="mt-4 relative h-[150px]" id="barWrap">
+<div class="absolute inset-y-0 left-0 right-0 flex flex-col justify-between pointer-events-none">
+<div class="border-t border-dashed border-[#EDF1EE]"></div>
+<div class="border-t border-dashed border-[#EDF1EE]"></div>
+<div class="border-t border-dashed border-[#EDF1EE]"></div>
+<div class="border-t border-dashed border-[#EDF1EE]"></div>
+</div>
+<div class="relative h-full flex items-end gap-[3px] overflow-x-auto" style="scrollbar-width:none;-ms-overflow-style:none;">
+<div class="flex-1 shrink-0 min-w-[11px] flex flex-col items-center justify-end h-full">
+<button aria-label="10月1日支出286元" class="chart-bar w-full rounded-t-[4px] bg-[#B7E0CB]" data-amount="286.00" data-date="10/01" style="height:38%" type="button"></button>
+<span class="text-[8px] text-[#B4BDB7] mt-1">1</span>
+</div>
+<div class="flex-1 shrink-0 min-w-[11px] flex flex-col items-center justify-end h-full">
+<button aria-label="10月2日支出132.5元" class="chart-bar w-full rounded-t-[4px] bg-[#B7E0CB]" data-amount="132.50" data-date="10/02" style="height:18%" type="button"></button>
+<span class="text-[8px] text-[#B4BDB7] mt-1">2</span>
+</div>
+<div class="flex-1 shrink-0 min-w-[11px] flex flex-col items-center justify-end h-full">
+<button aria-label="10月3日支出88元" class="chart-bar w-full rounded-t-[4px] bg-[#B7E0CB]" data-amount="88.00" data-date="10/03" style="height:12%" type="button"></button>
+<span class="text-[8px] text-[#B4BDB7] mt-1">3</span>
+</div>
+<div class="flex-1 shrink-0 min-w-[11px] flex flex-col items-center justify-end h-full">
+<button aria-label="10月4日支出226元" class="chart-bar w-full rounded-t-[4px] bg-[#B7E0CB]" data-amount="226.00" data-date="10/04" style="height:31%" type="button"></button>
+<span class="text-[8px] text-[#B4BDB7] mt-1">4</span>
+</div>
+<div class="flex-1 shrink-0 min-w-[11px] flex flex-col items-center justify-end h-full">
+<button aria-label="10月5日支出176.4元" class="chart-bar w-full rounded-t-[4px] bg-[#B7E0CB]" data-amount="176.40" data-date="10/05" style="height:24%" type="button"></button>
+<span class="text-[8px] text-[#B4BDB7] mt-1">5</span>
+</div>
+<div class="flex-1 shrink-0 min-w-[11px] flex flex-col items-center justify-end h-full">
+<button aria-label="10月6日支出398元" class="chart-bar w-full rounded-t-[4px] bg-[#B7E0CB]" data-amount="398.00" data-date="10/06" style="height:55%" type="button"></button>
+<span class="text-[8px] text-[#B4BDB7] mt-1">6</span>
+</div>
+<div class="flex-1 shrink-0 min-w-[11px] flex flex-col items-center justify-end h-full">
+<button aria-label="10月7日支出118元" class="chart-bar w-full rounded-t-[4px] bg-[#B7E0CB]" data-amount="118.00" data-date="10/07" style="height:16%" type="button"></button>
+<span class="text-[8px] text-[#B4BDB7] mt-1">7</span>
+</div>
+<div class="flex-1 shrink-0 min-w-[11px] flex flex-col items-center justify-end h-full">
+<button aria-label="10月8日支出196元" class="chart-bar w-full rounded-t-[4px] bg-[#B7E0CB]" data-amount="196.00" data-date="10/08" style="height:27%" type="button"></button>
+<span class="text-[8px] text-[#B4BDB7] mt-1">8</span>
+</div>
+<div class="flex-1 shrink-0 min-w-[11px] flex flex-col items-center justify-end h-full">
+<button aria-label="10月9日支出102.8元" class="chart-bar w-full rounded-t-[4px] bg-[#B7E0CB]" data-amount="102.80" data-date="10/09" style="height:14%" type="button"></button>
+<span class="text-[8px] text-[#B4BDB7] mt-1">9</span>
+</div>
+<div class="flex-1 shrink-0 min-w-[11px] flex flex-col items-center justify-end h-full">
+<button aria-label="10月10日支出152元" class="chart-bar w-full rounded-t-[4px] bg-[#B7E0CB]" data-amount="152.00" data-date="10/10" style="height:21%" type="button"></button>
+<span class="text-[8px] text-[#B4BDB7] mt-1">10</span>
+</div>
+<div class="flex-1 shrink-0 min-w-[11px] flex flex-col items-center justify-end h-full">
+<button aria-label="10月11日支出326.5元" class="chart-bar w-full rounded-t-[4px] bg-[#B7E0CB]" data-amount="326.50" data-date="10/11" style="height:45%" type="button"></button>
+<span class="text-[8px] text-[#B4BDB7] mt-1">11</span>
+</div>
+<div class="flex-1 shrink-0 min-w-[11px] flex flex-col items-center justify-end h-full">
+<button aria-label="10月12日支出186元" class="chart-bar w-full rounded-t-[4px] bg-[#B7E0CB]" data-amount="186.00" data-date="10/12" style="height:26%" type="button"></button>
+<span class="text-[8px] text-[#B4BDB7] mt-1">12</span>
+</div>
+<div class="flex-1 shrink-0 min-w-[11px] flex flex-col items-center justify-end h-full">
+<button aria-label="10月13日支出66元" class="chart-bar w-full rounded-t-[4px] bg-[#B7E0CB]" data-amount="66.00" data-date="10/13" style="height:9%" type="button"></button>
+<span class="text-[8px] text-[#B4BDB7] mt-1">13</span>
+</div>
+<div class="flex-1 shrink-0 min-w-[11px] flex flex-col items-center justify-end h-full">
+<button aria-label="10月14日支出238元" class="chart-bar w-full rounded-t-[4px] bg-[#B7E0CB]" data-amount="238.00" data-date="10/14" style="height:33%" type="button"></button>
+<span class="text-[8px] text-[#B4BDB7] mt-1">14</span>
+</div>
+<div class="flex-1 shrink-0 min-w-[11px] flex flex-col items-center justify-end h-full">
+<button aria-label="10月15日支出138元" class="chart-bar w-full rounded-t-[4px] bg-[#B7E0CB]" data-amount="138.00" data-date="10/15" style="height:19%" type="button"></button>
+<span class="text-[8px] text-[#B4BDB7] mt-1">15</span>
+</div>
+<div class="flex-1 shrink-0 min-w-[11px] flex flex-col items-center justify-end h-full">
+<button aria-label="10月16日支出158元" class="chart-bar w-full rounded-t-[4px] bg-[#B7E0CB]" data-amount="158.00" data-date="10/16" style="height:22%" type="button"></button>
+<span class="text-[8px] text-[#B4BDB7] mt-1">16</span>
+</div>
+<div class="flex-1 shrink-0 min-w-[11px] flex flex-col items-center justify-end h-full">
+<button aria-label="10月17日支出208元" class="chart-bar w-full rounded-t-[4px] bg-[#B7E0CB]" data-amount="208.00" data-date="10/17" style="height:29%" type="button"></button>
+<span class="text-[8px] text-[#B4BDB7] mt-1">17</span>
+</div>
+<div class="flex-1 shrink-0 min-w-[11px] flex flex-col items-center justify-end h-full">
+<button aria-label="10月18日支出446元" class="chart-bar w-full rounded-t-[4px] bg-[#E9A23B]" data-amount="446.00" data-date="10/18" style="height:61%" type="button"></button>
+<span class="text-[8px] text-[#B4BDB7] mt-1">18</span>
+</div>
+<div class="flex-1 shrink-0 min-w-[11px] flex flex-col items-center justify-end h-full">
+<button aria-label="10月19日支出122元" class="chart-bar w-full rounded-t-[4px] bg-[#B7E0CB]" data-amount="122.00" data-date="10/19" style="height:17%" type="button"></button>
+<span class="text-[8px] text-[#B4BDB7] mt-1">19</span>
+</div>
+<div class="flex-1 shrink-0 min-w-[11px] flex flex-col items-center justify-end h-full">
+<button aria-label="10月20日支出182元" class="chart-bar w-full rounded-t-[4px] bg-[#B7E0CB]" data-amount="182.00" data-date="10/20" style="height:25%" type="button"></button>
+<span class="text-[8px] text-[#B4BDB7] mt-1">20</span>
+</div>
+<div class="flex-1 shrink-0 min-w-[11px] flex flex-col items-center justify-end h-full">
+<button aria-label="10月21日支出268元" class="chart-bar w-full rounded-t-[4px] bg-[#B7E0CB]" data-amount="268.00" data-date="10/21" style="height:36%" type="button"></button>
+<span class="text-[8px] text-[#B4BDB7] mt-1">21</span>
+</div>
+<div class="flex-1 shrink-0 min-w-[11px] flex flex-col items-center justify-end h-full">
+<button aria-label="10月22日支出158.8元" class="chart-bar w-full rounded-t-[4px] bg-[#B7E0CB]" data-amount="158.80" data-date="10/22" style="height:21%" type="button"></button>
+<span class="text-[8px] text-[#B4BDB7] mt-1">22</span>
+</div>
+<div class="flex-1 shrink-0 min-w-[11px] flex flex-col items-center justify-end h-full">
+<button aria-label="10月23日支出186元" class="chart-bar w-full rounded-t-[4px] bg-[#B7E0CB]" data-amount="186.00" data-date="10/23" style="height:25%" type="button"></button>
+<span class="text-[8px] text-[#B4BDB7] mt-1">23</span>
+</div>
+<div class="flex-1 shrink-0 min-w-[11px] flex flex-col items-center justify-end h-full">
+<button aria-label="10月24日支出112.5元" class="chart-bar w-full rounded-t-[4px] bg-[#1F8A5C]" data-amount="112.50" data-date="10/24" style="height:15%" type="button"></button>
+<span class="text-[8px] text-[#1F8A5C] font-medium mt-1">24</span>
+</div>
+</div>
+</div>
+<div class="hidden tip" id="barTip"></div>
+<div class="mt-3 pt-3 border-t border-[#F2F5F3] flex items-center justify-between">
+<p class="text-[10.5px] text-[#8A968F]">最高：10/18 <span class="num text-[#4B5A53] font-medium">¥446.00</span></p>
+<p class="text-[10.5px] text-[#8A968F]">最低：10/13 <span class="num text-[#4B5A53] font-medium">¥66.00</span></p>
+</div>
+</section>
+<!-- 支出分类明细 -->
+<section class="mt-4">
+<div class="flex items-center justify-between px-1 mb-2">
+<h2 class="text-[14px] font-semibold">支出分类明细</h2>
+<span class="text-[10.5px] text-[#8A968F]">按金额降序</span>
+</div>
+<div class="card overflow-hidden">
+<a class="flex items-center gap-3 px-4 py-3.5 active:bg-[#FAFCFB]" href="https://modao.cc/agent-py/workspace/6addbaacde2fb8a03b1662d7/expense-tracker.html/category-detail.html?render_html=true">
+<div class="w-9 h-9 rounded-[12px] bg-[#FFF1E4] flex items-center justify-center text-[17px]">🍚</div>
+<div class="flex-1 min-w-0">
+<p class="text-[13.5px] font-medium">餐饮</p>
+<p class="text-[10.5px] text-[#8A968F] mt-0.5">14 笔 · 日均 ¥53.60</p>
+</div>
+<div class="text-right">
+<p class="num text-[13.5px] font-semibold">¥1,286.40</p>
+<p class="text-[10px] text-[#8A968F] mt-0.5">30.0%</p>
+</div>
+<iconify-icon class="text-[13px] text-[#C9D2CC]" icon="ph:caret-right"></iconify-icon>
+</a>
+<div class="h-px bg-[#F2F5F3] ml-16"></div>
+<a class="flex items-center gap-3 px-4 py-3.5 active:bg-[#FAFCFB]" href="https://modao.cc/agent-py/workspace/6addbaacde2fb8a03b1662d7/expense-tracker.html/category-detail.html?render_html=true">
+<div class="w-9 h-9 rounded-[12px] bg-[#FFEDEF] flex items-center justify-center text-[17px]">🛍️</div>
+<div class="flex-1 min-w-0">
+<p class="text-[13.5px] font-medium">购物</p>
+<p class="text-[10.5px] text-[#8A968F] mt-0.5">4 笔 · 最大单笔 ¥399.00</p>
+</div>
+<div class="text-right">
+<p class="num text-[13.5px] font-semibold">¥842.00</p>
+<p class="text-[10px] text-[#8A968F] mt-0.5">19.6%</p>
+</div>
+<iconify-icon class="text-[13px] text-[#C9D2CC]" icon="ph:caret-right"></iconify-icon>
+</a>
+<div class="h-px bg-[#F2F5F3] ml-16"></div>
+<a class="flex items-center gap-3 px-4 py-3.5 active:bg-[#FAFCFB]" href="https://modao.cc/agent-py/workspace/6addbaacde2fb8a03b1662d7/expense-tracker.html/category-detail.html?render_html=true">
+<div class="w-9 h-9 rounded-[12px] bg-[#EAF6F2] flex items-center justify-center text-[17px]">🏠</div>
+<div class="flex-1 min-w-0">
+<p class="text-[13.5px] font-medium">居住</p>
+<p class="text-[10.5px] text-[#8A968F] mt-0.5">2 笔 · 房租与水电</p>
+</div>
+<div class="text-right">
+<p class="num text-[13.5px] font-semibold">¥728.80</p>
+<p class="text-[10px] text-[#8A968F] mt-0.5">17.0%</p>
+</div>
+<iconify-icon class="text-[13px] text-[#C9D2CC]" icon="ph:caret-right"></iconify-icon>
+</a>
+<div class="h-px bg-[#F2F5F3] ml-16"></div>
+<a class="flex items-center gap-3 px-4 py-3.5 active:bg-[#FAFCFB]" href="https://modao.cc/agent-py/workspace/6addbaacde2fb8a03b1662d7/expense-tracker.html/category-detail.html?render_html=true">
+<div class="w-9 h-9 rounded-[12px] bg-[#F2EEFF] flex items-center justify-center text-[17px]">🎮</div>
+<div class="flex-1 min-w-0">
+<p class="text-[13.5px] font-medium">娱乐</p>
+<p class="text-[10.5px] text-[#8A968F] mt-0.5">3 笔 · 电影与会员</p>
+</div>
+<div class="text-right">
+<p class="num text-[13.5px] font-semibold">¥496.00</p>
+<p class="text-[10px] text-[#8A968F] mt-0.5">11.6%</p>
+</div>
+<iconify-icon class="text-[13px] text-[#C9D2CC]" icon="ph:caret-right"></iconify-icon>
+</a>
+<div class="h-px bg-[#F2F5F3] ml-16"></div>
+<a class="flex items-center gap-3 px-4 py-3.5 active:bg-[#FAFCFB]" href="https://modao.cc/agent-py/workspace/6addbaacde2fb8a03b1662d7/expense-tracker.html/category-detail.html?render_html=true">
+<div class="w-9 h-9 rounded-[12px] bg-[#FFF3E6] flex items-center justify-center text-[17px]">🧋</div>
+<div class="flex-1 min-w-0">
+<p class="text-[13.5px] font-medium">零食饮料</p>
+<p class="text-[10.5px] text-[#8A968F] mt-0.5">5 笔 · 咖啡居多</p>
+</div>
+<div class="text-right">
+<p class="num text-[13.5px] font-semibold">¥368.00</p>
+<p class="text-[10px] text-[#8A968F] mt-0.5">8.6%</p>
+</div>
+<iconify-icon class="text-[13px] text-[#C9D2CC]" icon="ph:caret-right"></iconify-icon>
+</a>
+<div class="h-px bg-[#F2F5F3] ml-16"></div>
+<a class="flex items-center gap-3 px-4 py-3.5 active:bg-[#FAFCFB]" href="https://modao.cc/agent-py/workspace/6addbaacde2fb8a03b1662d7/expense-tracker.html/category-detail.html?render_html=true">
+<div class="w-9 h-9 rounded-[12px] bg-[#FDEEF3] flex items-center justify-center text-[17px]">👕</div>
+<div class="flex-1 min-w-0">
+<p class="text-[13.5px] font-medium">服饰</p>
+<p class="text-[10.5px] text-[#8A968F] mt-0.5">1 笔 · 换季衣物</p>
+</div>
+<div class="text-right">
+<p class="num text-[13.5px] font-semibold">¥276.00</p>
+<p class="text-[10px] text-[#8A968F] mt-0.5">6.4%</p>
+</div>
+<iconify-icon class="text-[13px] text-[#C9D2CC]" icon="ph:caret-right"></iconify-icon>
+</a>
+<div class="h-px bg-[#F2F5F3] ml-16"></div>
+<button class="w-full flex items-center gap-3 px-4 py-3.5 active:bg-[#FAFCFB]" onclick="toggleOther()" type="button">
+<div class="w-9 h-9 rounded-[12px] bg-[#F1F3F4] flex items-center justify-center text-[17px]">📦</div>
+<div class="flex-1 min-w-0 text-left">
+<p class="text-[13.5px] font-medium">其他 <span class="text-[10px] text-[#8A968F] font-normal">（合并 5 项）</span></p>
+<p class="text-[10.5px] text-[#8A968F] mt-0.5">交通/通讯/医疗/学习/人情</p>
+</div>
+<div class="text-right">
+<p class="num text-[13.5px] font-semibold">¥289.20</p>
+<p class="text-[10px] text-[#8A968F] mt-0.5">6.8%</p>
+</div>
+<iconify-icon class="text-[13px] text-[#C9D2CC]" icon="ph:caret-down"></iconify-icon>
+</button>
+<div class="hidden bg-[#FAFCFB] px-4 py-2" id="otherList">
+<div class="flex items-center justify-between py-1.5 text-[11.5px] text-[#4B5A53]">
+<span>🚌 交通</span><span class="num">¥112.20</span>
+</div>
+<div class="flex items-center justify-between py-1.5 text-[11.5px] text-[#4B5A53]">
+<span>📱 通讯</span><span class="num">¥59.00</span>
+</div>
+<div class="flex items-center justify-between py-1.5 text-[11.5px] text-[#4B5A53]">
+<span>💊 医疗</span><span class="num">¥48.00</span>
+</div>
+<div class="flex items-center justify-between py-1.5 text-[11.5px] text-[#4B5A53]">
+<span>📚 学习</span><span class="num">¥39.00</span>
+</div>
+<div class="flex items-center justify-between py-1.5 text-[11.5px] text-[#4B5A53]">
+<span>🎁 人情</span><span class="num">¥31.00</span>
+</div>
+</div>
+</div>
+</section>
+<!-- 当月洞察 -->
+<section class="mt-4 rounded-[20px] bg-[#E7F4EC] px-4 py-3.5">
+<div class="flex items-start gap-2.5">
+<div class="w-8 h-8 rounded-full bg-white flex items-center justify-center shrink-0">
+<iconify-icon class="text-[#1F8A5C] text-[16px]" icon="ph:sparkle"></iconify-icon>
+</div>
+<div>
+<p class="text-[12px] font-medium text-[#146B46]">本月小结</p>
+<p class="text-[11px] text-[#4B7C65] mt-1 leading-relaxed">餐饮比上月多花 ¥86，主要来自外卖；娱乐支出下降 12%，继续保持。日均支出 ¥178.60，低于预算建议值。</p>
+</div>
+</div>
+</section>
+<p class="text-center text-[10px] text-[#B4BDB7] mt-4 mb-2">数据统计截至 2026-10-24 23:59</p>
+</main>
+<nav class="shrink-0 bg-white border-t border-[#ECEFED] px-3 pt-2 pb-3">
+<div class="flex items-end justify-around">
+<a class="flex flex-col items-center gap-1 w-16" href="https://modao.cc/agent-py/workspace/6addbaacde2fb8a03b1662d7/expense-tracker.html/home.html?render_html=true">
+<iconify-icon class="text-[22px] text-[#B4BDB7]" icon="ph:receipt"></iconify-icon>
+<span class="text-[10.5px] text-[#8A968F]">明细</span>
+</a>
+<a class="flex flex-col items-center gap-1 w-16" href="https://modao.cc/agent-py/workspace/6addbaacde2fb8a03b1662d7/expense-tracker.html/statistics.html?render_html=true">
+<iconify-icon class="text-[22px] text-[#1F8A5C]" icon="ph:chart-donut-duotone"></iconify-icon>
+<span class="text-[10.5px] font-medium text-[#1F8A5C]">统计</span>
+</a>
+<a aria-label="记一笔" class="w-[54px] h-[54px] -mt-7 rounded-full bg-[#1F8A5C] text-white shadow-[0_8px_20px_rgba(31,138,92,0.35)] flex items-center justify-center active:scale-95 transition" href="https://modao.cc/agent-py/workspace/6addbaacde2fb8a03b1662d7/expense-tracker.html/home.html?render_html=true">
+<iconify-icon class="text-[24px]" icon="ph:plus-bold"></iconify-icon>
+</a>
+<a class="flex flex-col items-center gap-1 w-16" href="https://modao.cc/agent-py/workspace/6addbaacde2fb8a03b1662d7/expense-tracker.html/settings.html?render_html=true">
+<iconify-icon class="text-[22px] text-[#B4BDB7]" icon="ph:gear-six"></iconify-icon>
+<span class="text-[10.5px] text-[#8A968F]">设置</span>
+</a>
+<a class="flex flex-col items-center gap-1 w-16" href="https://modao.cc/agent-py/workspace/6addbaacde2fb8a03b1662d7/expense-tracker.html/budget.html?render_html=true">
+<iconify-icon class="text-[22px] text-[#B4BDB7]" icon="ph:target"></iconify-icon>
+<span class="text-[10.5px] text-[#8A968F]">预算</span>
+</a>
+</div>
+</nav>
+</div>
+<script>
+    const months = {
+      current: { label: '2026 年 10 月', hint: '已记录 24 天 · 36 笔', expense: '4,286.40', income: '7,707.00', balance: '3,420.60', mom: true },
+      previous: { label: '2026 年 9 月', hint: '已记录 30 天 · 48 笔', expense: '3,961.20', income: '7,480.00', balance: '3,518.80', mom: false }
+    };
+    let monthKey = 'current';
+
+    function changeMonth(dir) {
+      monthKey = dir < 0 ? 'previous' : 'current';
+      const m = months[monthKey];
+      document.getElementById('monthLabel').textContent = m.label;
+      document.getElementById('monthHint').textContent = m.hint;
+      document.getElementById('kpiExpense').textContent = m.expense;
+      document.getElementById('kpiIncome').textContent = m.income;
+      document.getElementById('kpiBalance').textContent = m.balance;
+      document.getElementById('kpiExpenseMoM').classList.toggle('hidden', !m.mom);
+      document.getElementById('kpiIncomeMoM').classList.toggle('hidden', !m.mom);
+      document.getElementById('noMoM').classList.toggle('hidden', m.mom);
+      document.getElementById('barWrap').classList.toggle('opacity-40', !m.mom);
+    }
+
+    function toggleOther() {
+      const list = document.getElementById('otherList');
+      list.classList.toggle('hidden');
+      const icon = document.querySelector('#otherList').previousElementSibling.querySelector('iconify-icon');
+      if (!icon) return;
+      if (icon) {
+        icon.setAttribute('icon', list.classList.contains('hidden') ? 'ph:caret-down' : 'ph:caret-up');
+      }
+    }
+
+    const wrap = document.getElementById('barWrap');
+    const tip = document.getElementById('barTip');
+    document.querySelectorAll('.chart-bar').forEach(function (bar) {
+      bar.addEventListener('click', function (e) {
+        const rect = wrap.getBoundingClientRect();
+        const barRect = bar.getBoundingClientRect();
+        const left = barRect.left - rect.left + barRect.width / 2;
+        tip.textContent = bar.dataset.date + ' 支出 ¥' + Number(bar.dataset.amount).toFixed(2);
+        tip.style.left = left + 'px';
+        tip.style.top = '0px';
+        tip.classList.remove('hidden');
+        setTimeout(function () {
+          window.location.href = 'home.html?date=' + encodeURIComponent(bar.dataset.date);
+        }, 450);
+      });
+      bar.addEventListener('mouseleave', function () { tip.classList.add('hidden'); });
+    });
+
+    document.querySelectorAll('.donut-seg').forEach(function (seg) {
+      seg.addEventListener('click', function () {
+        window.location.href = 'category-detail.html';
+      });
+    });
+  </script>
+</body>
+</html>

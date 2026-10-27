@@ -1,0 +1,257 @@
+<!DOCTYPE html>
+
+<html class="w-full h-full overflow-hidden" lang="zh-CN">
+<head>
+<meta charset="utf-8"/>
+<meta content="width=device-width, initial-scale=1.0" name="viewport"/>
+<title>设置 · 小账本</title>
+<script src="https://modao.cc/agent-py/static/source/js/tailwindcss.js"></script>
+<script src="https://modao.cc/agent-py/static/source/js/iconify-icon.min.js"></script>
+<style>
+  * { -webkit-tap-highlight-color: transparent; }
+  body { font-family:-apple-system,BlinkMacSystemFont,"PingFang SC","Hiragino Sans GB","Microsoft YaHei",sans-serif; color:#17241F; }
+  .num { font-variant-numeric: tabular-nums; letter-spacing:-0.02em; }
+  .scroll-area { scrollbar-width:none; -ms-overflow-style:none; }
+  .scroll-area::-webkit-scrollbar { display:none; width:0; height:0; }
+  .row { transition: background .15s ease; }
+  .row:active { background:#FAFCFB; }
+</style>
+</head>
+<body class="w-full h-full m-0 overflow-hidden flex items-center justify-center bg-[#E8EDE9]">
+<div class="w-full h-full max-w-[393px] max-h-[852px] bg-[#F4F7F5] flex flex-col overflow-hidden relative">
+<header class="shrink-0 px-5 pt-5 pb-3">
+<p class="text-[11px] text-[#8A968F] mb-1">我的</p>
+<h1 class="text-[20px] font-semibold leading-none">设置</h1>
+</header>
+<main class="flex-1 min-h-0 overflow-y-auto overflow-x-hidden scroll-area px-5 pb-[104px]" style="scrollbar-width:none;-ms-overflow-style:none;">
+<!-- 用户卡 -->
+<section class="rounded-[24px] bg-[#1E8E60] px-4 py-4 relative overflow-hidden">
+<div class="absolute -right-6 -bottom-10 w-28 h-28 rounded-full bg-white/10"></div>
+<div class="relative flex items-center gap-3">
+<div class="w-12 h-12 rounded-full bg-[#F6FBF8] flex items-center justify-center text-[20px]">🌿</div>
+<div class="flex-1">
+<p class="text-[15px] font-semibold text-white">林小满</p>
+<p class="text-[10.5px] text-[#D6F0E1] mt-0.5">已坚持记账 214 天 · 累计 1,286 笔</p>
+</div>
+<div class="rounded-full bg-white/15 px-2.5 py-1 text-[10px] text-[#EAF7F0] flex items-center gap-1">
+<iconify-icon class="text-[11px]" icon="ph:medal"></iconify-icon>连续 30 天
+          </div>
+</div>
+<div class="relative mt-3 grid grid-cols-3 gap-2">
+<div>
+<p class="text-[9.5px] text-[#D6F0E1]">本月支出</p>
+<p class="num text-[13px] font-semibold text-white mt-0.5">¥4,286.40</p>
+</div>
+<div>
+<p class="text-[9.5px] text-[#D6F0E1]">本月结余</p>
+<p class="num text-[13px] font-semibold text-white mt-0.5">¥3,420.60</p>
+</div>
+<div>
+<p class="text-[9.5px] text-[#D6F0E1]">预算使用</p>
+<p class="num text-[13px] font-semibold text-white mt-0.5">57%</p>
+</div>
+</div>
+</section>
+<!-- 记账设置 -->
+<h2 class="text-[11px] text-[#8A968F] px-1 mt-4 mb-2">记账设置</h2>
+<div class="bg-white border border-[#ECEFED] rounded-[20px] overflow-hidden">
+<a class="row flex items-center gap-3 px-4 py-3.5 border-b border-[#F2F5F3]" href="https://modao.cc/agent-py/workspace/6addbaacde2fb8a03b1662d7/expense-tracker.html/categories.html?render_html=true">
+<div class="w-8 h-8 rounded-[10px] bg-[#FFF1E4] flex items-center justify-center">
+<iconify-icon class="text-[15px] text-[#C98A2B]" icon="ph:tag"></iconify-icon>
+</div>
+<div class="flex-1">
+<p class="text-[13px]">分类管理</p>
+<p class="text-[10px] text-[#8A968F] mt-0.5">12 个支出分类 · 7 个收入分类</p>
+</div>
+<iconify-icon class="text-[13px] text-[#C9D2CC]" icon="ph:caret-right"></iconify-icon>
+</a>
+<a class="row flex items-center gap-3 px-4 py-3.5 border-b border-[#F2F5F3]" href="https://modao.cc/agent-py/workspace/6addbaacde2fb8a03b1662d7/expense-tracker.html/budget.html?render_html=true">
+<div class="w-8 h-8 rounded-[10px] bg-[#E7F4EC] flex items-center justify-center">
+<iconify-icon class="text-[15px] text-[#1F8A5C]" icon="ph:target"></iconify-icon>
+</div>
+<div class="flex-1">
+<p class="text-[13px]">月度预算</p>
+<p class="text-[10px] text-[#8A968F] mt-0.5">总预算 ¥6,500 · 已用 57%</p>
+</div>
+<iconify-icon class="text-[13px] text-[#C9D2CC]" icon="ph:caret-right"></iconify-icon>
+</a>
+<a class="row flex items-center gap-3 px-4 py-3.5 border-b border-[#F2F5F3]" href="https://modao.cc/agent-py/workspace/6addbaacde2fb8a03b1662d7/expense-tracker.html/export.html?render_html=true">
+<div class="w-8 h-8 rounded-[10px] bg-[#E9F1FF] flex items-center justify-center">
+<iconify-icon class="text-[15px] text-[#3F6FB0]" icon="ph:download-simple"></iconify-icon>
+</div>
+<div class="flex-1">
+<p class="text-[13px]">数据导出</p>
+<p class="text-[10px] text-[#8A968F] mt-0.5">导出 CSV，可分享到其他设备</p>
+</div>
+<iconify-icon class="text-[13px] text-[#C9D2CC]" icon="ph:caret-right"></iconify-icon>
+</a>
+<a class="row flex items-center gap-3 px-4 py-3.5" href="https://modao.cc/agent-py/workspace/6addbaacde2fb8a03b1662d7/expense-tracker.html/reminder.html?render_html=true">
+<div class="w-8 h-8 rounded-[10px] bg-[#F2EEFF] flex items-center justify-center">
+<iconify-icon class="text-[15px] text-[#7C5FD3]" icon="ph:bell-ringing"></iconify-icon>
+</div>
+<div class="flex-1">
+<p class="text-[13px]">记账提醒</p>
+<p class="text-[10px] text-[#8A968F] mt-0.5">每天 21:30 · 已开启</p>
+</div>
+<iconify-icon class="text-[13px] text-[#C9D2CC]" icon="ph:caret-right"></iconify-icon>
+</a>
+</div>
+<!-- 通用 -->
+<h2 class="text-[11px] text-[#8A968F] px-1 mt-4 mb-2">通用</h2>
+<div class="bg-white border border-[#ECEFED] rounded-[20px] overflow-hidden">
+<div class="row flex items-center gap-3 px-4 py-3.5 border-b border-[#F2F5F3]">
+<div class="w-8 h-8 rounded-[10px] bg-[#EAF6F2] flex items-center justify-center">
+<iconify-icon class="text-[15px] text-[#1F8A5C]" icon="ph:translate"></iconify-icon>
+</div>
+<div class="flex-1">
+<p class="text-[13px]">货币单位</p>
+</div>
+<span class="text-[11.5px] text-[#8A968F]">人民币 ¥</span>
+<iconify-icon class="text-[13px] text-[#C9D2CC]" icon="ph:caret-right"></iconify-icon>
+</div>
+<div class="row flex items-center gap-3 px-4 py-3.5 border-b border-[#F2F5F3]">
+<div class="w-8 h-8 rounded-[10px] bg-[#FFF6E0] flex items-center justify-center">
+<iconify-icon class="text-[15px] text-[#C98A2B]" icon="ph:calendar-check"></iconify-icon>
+</div>
+<div class="flex-1">
+<p class="text-[13px]">每周起始日</p>
+</div>
+<span class="text-[11.5px] text-[#8A968F]">周一</span>
+<iconify-icon class="text-[13px] text-[#C9D2CC]" icon="ph:caret-right"></iconify-icon>
+</div>
+<button class="row w-full flex items-center gap-3 px-4 py-3.5" onclick="toggleTheme()" type="button">
+<div class="w-8 h-8 rounded-[10px] bg-[#F1F3F4] flex items-center justify-center">
+<iconify-icon class="text-[15px] text-[#4B5A53]" icon="ph:moon"></iconify-icon>
+</div>
+<div class="flex-1 text-left">
+<p class="text-[13px]">跟随系统深色模式</p>
+<p class="text-[10px] text-[#8A968F] mt-0.5" id="themeHint">当前为浅色模式</p>
+</div>
+<span class="w-11 h-6 rounded-full bg-[#1F8A5C] relative transition" id="themeToggle">
+<span class="absolute top-0.5 left-[22px] w-5 h-5 rounded-full bg-white shadow transition-all" id="themeKnob"></span>
+</span>
+</button>
+</div>
+<!-- 隐私与数据 -->
+<h2 class="text-[11px] text-[#8A968F] px-1 mt-4 mb-2">隐私与数据</h2>
+<div class="bg-white border border-[#ECEFED] rounded-[20px] overflow-hidden">
+<button class="row w-full flex items-center gap-3 px-4 py-3.5 border-b border-[#F2F5F3] text-left" onclick="openPolicy()" type="button">
+<div class="w-8 h-8 rounded-[10px] bg-[#EAF6F2] flex items-center justify-center">
+<iconify-icon class="text-[15px] text-[#1F8A5C]" icon="ph:shield-check"></iconify-icon>
+</div>
+<p class="flex-1 text-[13px]">隐私政策</p>
+<iconify-icon class="text-[13px] text-[#C9D2CC]" icon="ph:caret-right"></iconify-icon>
+</button>
+<button class="row w-full flex items-center gap-3 px-4 py-3.5 border-b border-[#F2F5F3] text-left" onclick="openPolicy('服务条款')" type="button">
+<div class="w-8 h-8 rounded-[10px] bg-[#F4F7F5] flex items-center justify-center">
+<iconify-icon class="text-[15px] text-[#4B5A53]" icon="ph:file-text"></iconify-icon>
+</div>
+<p class="flex-1 text-[13px]">用户服务条款</p>
+<iconify-icon class="text-[13px] text-[#C9D2CC]" icon="ph:caret-right"></iconify-icon>
+</button>
+<button class="row w-full flex items-center gap-3 px-4 py-3.5 text-left" onclick="openWipe()" type="button">
+<div class="w-8 h-8 rounded-[10px] bg-[#FFF3F1] flex items-center justify-center">
+<iconify-icon class="text-[15px] text-[#E8654F]" icon="ph:trash"></iconify-icon>
+</div>
+<div class="flex-1">
+<p class="text-[13px] text-[#E8654F]">一键清除数据</p>
+<p class="text-[10px] text-[#B4BDB7] mt-0.5">清除所有流水与设置，不可恢复</p>
+</div>
+<iconify-icon class="text-[13px] text-[#C9D2CC]" icon="ph:caret-right"></iconify-icon>
+</button>
+</div>
+<div class="mt-4 flex items-center justify-center gap-1.5 text-[10px] text-[#B4BDB7]">
+<iconify-icon class="text-[11px]" icon="ph:lock-key"></iconify-icon>
+        数据仅保存在本机，不上传云端
+      </div>
+<p class="text-center text-[10px] text-[#B4BDB7] mt-1.5">小账本 v2.4.1 · 2026.10</p>
+</main>
+<!-- 底部 Tab -->
+<nav class="shrink-0 bg-white border-t border-[#ECEFED] px-3 pt-2 pb-3">
+<div class="flex items-end justify-around">
+<a class="flex flex-col items-center gap-1 w-16" href="https://modao.cc/agent-py/workspace/6addbaacde2fb8a03b1662d7/expense-tracker.html/home.html?render_html=true">
+<iconify-icon class="text-[22px] text-[#B4BDB7]" icon="ph:receipt"></iconify-icon>
+<span class="text-[10.5px] text-[#8A968F]">明细</span>
+</a>
+<a class="flex flex-col items-center gap-1 w-16" href="https://modao.cc/agent-py/workspace/6addbaacde2fb8a03b1662d7/expense-tracker.html/statistics.html?render_html=true">
+<iconify-icon class="text-[22px] text-[#B4BDB7]" icon="ph:chart-donut"></iconify-icon>
+<span class="text-[10.5px] text-[#8A968F]">统计</span>
+</a>
+<a aria-label="记一笔" class="w-[54px] h-[54px] -mt-7 rounded-full bg-[#1F8A5C] text-white shadow-[0_8px_20px_rgba(31,138,92,0.35)] flex items-center justify-center active:scale-95 transition" href="https://modao.cc/agent-py/workspace/6addbaacde2fb8a03b1662d7/expense-tracker.html/home.html?render_html=true">
+<iconify-icon class="text-[24px]" icon="ph:plus-bold"></iconify-icon>
+</a>
+<a class="flex flex-col items-center gap-1 w-16" href="https://modao.cc/agent-py/workspace/6addbaacde2fb8a03b1662d7/expense-tracker.html/settings.html?render_html=true">
+<iconify-icon class="text-[22px] text-[#1F8A5C]" icon="ph:gear-six-duotone"></iconify-icon>
+<span class="text-[10.5px] font-medium text-[#1F8A5C]">设置</span>
+</a>
+<a class="flex flex-col items-center gap-1 w-16" href="https://modao.cc/agent-py/workspace/6addbaacde2fb8a03b1662d7/expense-tracker.html/budget.html?render_html=true">
+<iconify-icon class="text-[22px] text-[#B4BDB7]" icon="ph:target"></iconify-icon>
+<span class="text-[10.5px] text-[#8A968F]">预算</span>
+</a>
+</div>
+</nav>
+<!-- 隐私政策半屏 -->
+<div class="hidden absolute inset-0 z-30 bg-[rgba(23,36,31,0.42)]" id="policyBackdrop" onclick="closePolicy()"></div>
+<section class="hidden absolute inset-x-0 bottom-0 z-40 bg-white rounded-t-[24px] px-5 pt-3 pb-5 max-h-[75%] flex flex-col" id="policySheet">
+<div class="w-9 h-1 rounded-full bg-[#E2E8E4] mx-auto mb-4 shrink-0"></div>
+<div class="flex items-center justify-between shrink-0">
+<h2 class="text-[15px] font-semibold" id="policyTitle">隐私政策</h2>
+<button class="w-8 h-8 rounded-full bg-[#F4F7F5] flex items-center justify-center text-[#4B5A53]" onclick="closePolicy()" type="button">
+<iconify-icon class="text-[15px]" icon="ph:x"></iconify-icon>
+</button>
+</div>
+<div class="mt-3 overflow-y-auto scroll-area flex-1 min-h-0 text-[11.5px] text-[#4B5A53] leading-relaxed space-y-2.5">
+<p class="text-[10.5px] text-[#8A968F]">更新日期：2026 年 10 月 1 日</p>
+<p><span class="font-medium text-[#17241F]">1. 数据存储</span><br/>你的所有流水、预算与分类数据仅保存在本机设备，不经过任何服务器上传，卸载应用后数据将被删除。</p>
+<p><span class="font-medium text-[#17241F]">2. 信息收集范围</span><br/>我们仅读取你在应用中主动填写的金额、分类、备注与日期，不收集通讯录、位置、相册等无关信息。</p>
+<p><span class="font-medium text-[#17241F]">3. 数据导出</span><br/>导出的 CSV 文件由你自行保管与分享，导出过程不会向第三方服务发送数据。</p>
+<p><span class="font-medium text-[#17241F]">4. 提醒通知</span><br/>记账提醒由系统本地通知实现，可随时在设置中关闭。</p>
+<p><span class="font-medium text-[#17241F]">5. 你的权利</span><br/>你可以随时导出全部数据、清除数据或卸载应用以终止使用。</p>
+</div>
+<button class="shrink-0 w-full mt-4 py-3 rounded-[14px] bg-[#1F8A5C] text-white text-[13px] font-medium" onclick="closePolicy()" type="button">我已知晓</button>
+</section>
+<!-- 清除数据确认 -->
+<div class="hidden absolute inset-0 z-40 bg-[rgba(23,36,31,0.5)] flex items-center justify-center px-8" id="wipeBackdrop">
+<div class="w-full bg-white rounded-[22px] px-5 pt-5 pb-4">
+<div class="w-11 h-11 rounded-full bg-[#FFF3F1] flex items-center justify-center mx-auto">
+<iconify-icon class="text-[22px] text-[#E8654F]" icon="ph:warning-circle"></iconify-icon>
+</div>
+<p class="text-[14px] font-semibold text-center mt-3">确认清除全部数据？</p>
+<p class="text-[11px] text-[#8A968F] text-center mt-1.5 leading-relaxed">将删除 1,286 笔流水、分类配置与预算设置，操作不可恢复。建议先导出备份。</p>
+<div class="mt-4 flex gap-2">
+<button class="flex-1 py-2.5 rounded-[12px] bg-[#F4F7F5] text-[12px] text-[#4B5A53]" onclick="closeWipe()" type="button">取消</button>
+<a class="flex-1 py-2.5 rounded-[12px] bg-[#E8654F] text-white text-[12px] text-center" href="https://modao.cc/agent-py/workspace/6addbaacde2fb8a03b1662d7/expense-tracker.html/home.html?render_html=true">确认清除</a>
+</div>
+<a class="block text-center text-[10.5px] text-[#1F8A5C] mt-3" href="https://modao.cc/agent-py/workspace/6addbaacde2fb8a03b1662d7/expense-tracker.html/export.html?render_html=true">先去导出备份</a>
+</div>
+</div>
+</div>
+<script>
+    let themeOn = true;
+    function toggleTheme() {
+      themeOn = !themeOn;
+      const track = document.getElementById('themeToggle');
+      const knob = document.getElementById('themeKnob');
+      track.className = 'w-11 h-6 rounded-full relative transition ' + (themeOn ? 'bg-[#1F8A5C]' : 'bg-[#D8E0DB]');
+      knob.className = 'absolute top-0.5 w-5 h-5 rounded-full bg-white shadow transition-all ' + (themeOn ? 'left-[22px]' : 'left-0.5');
+      document.getElementById('themeHint').textContent = themeOn ? '当前为浅色模式' : '深色模式已关闭';
+    }
+
+    function openPolicy(title) {
+      document.getElementById('policyTitle').textContent = title || '隐私政策';
+      document.getElementById('policyBackdrop').classList.remove('hidden');
+      document.getElementById('policySheet').classList.remove('hidden');
+    }
+    function closePolicy() {
+      document.getElementById('policyBackdrop').classList.add('hidden');
+      document.getElementById('policySheet').classList.add('hidden');
+    }
+    function openWipe() {
+      document.getElementById('wipeBackdrop').classList.remove('hidden');
+    }
+    function closeWipe() {
+      document.getElementById('wipeBackdrop').classList.add('hidden');
+    }
+  </script>
+</body>
+</html>

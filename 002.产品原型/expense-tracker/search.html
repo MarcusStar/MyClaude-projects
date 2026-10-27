@@ -1,0 +1,247 @@
+<!DOCTYPE html>
+
+<html class="w-full h-full overflow-hidden" lang="zh-CN">
+<head>
+<meta charset="utf-8"/>
+<meta content="width=device-width, initial-scale=1.0" name="viewport"/>
+<title>筛选与搜索 · 小账本</title>
+<script src="https://modao.cc/agent-py/static/source/js/tailwindcss.js"></script>
+<script src="https://modao.cc/agent-py/static/source/js/iconify-icon.min.js"></script>
+<style>
+  * { -webkit-tap-highlight-color: transparent; }
+  body { font-family:-apple-system,BlinkMacSystemFont,"PingFang SC","Hiragino Sans GB","Microsoft YaHei",sans-serif; color:#17241F; }
+  .num { font-variant-numeric: tabular-nums; letter-spacing:-0.02em; }
+  .scroll-area { scrollbar-width:none; -ms-overflow-style:none; }
+  .scroll-area::-webkit-scrollbar { display:none; width:0; height:0; }
+  .chip-active { background:#1F8A5C; color:#fff; border-color:#1F8A5C; }
+</style>
+</head>
+<body class="w-full h-full m-0 overflow-hidden flex items-center justify-center bg-[#E8EDE9]">
+<div class="w-full h-full max-w-[393px] max-h-[852px] bg-[#F4F7F5] flex flex-col overflow-hidden relative">
+<header class="shrink-0 px-5 pt-4 pb-2">
+<div class="flex items-center gap-2">
+<a aria-label="返回" class="w-9 h-9 rounded-full bg-white border border-[#ECEFED] flex items-center justify-center text-[#4B5A53] shrink-0" href="https://modao.cc/agent-py/workspace/6addbaacde2fb8a03b1662d7/expense-tracker.html/home.html?render_html=true">
+<iconify-icon class="text-[16px]" icon="ph:caret-left"></iconify-icon>
+</a>
+<div class="flex-1 flex items-center gap-2 rounded-[14px] bg-white border border-[#ECEFED] px-3 py-2.5">
+<iconify-icon class="text-[16px] text-[#8A968F]" icon="ph:magnifying-glass"></iconify-icon>
+<input class="bg-transparent outline-none text-[12.5px] w-full placeholder:text-[#9AA69F]" id="keyword" oninput="applyFilters()" placeholder="搜索备注、金额或分类"/>
+<button class="hidden text-[#8A968F]" id="clearBtn" onclick="clearKeyword()" type="button">
+<iconify-icon class="text-[15px]" icon="ph:x-circle-fill"></iconify-icon>
+</button>
+</div>
+</div>
+</header>
+<main class="flex-1 min-h-0 overflow-y-auto overflow-x-hidden scroll-area px-5 pb-28" style="scrollbar-width:none;-ms-overflow-style:none;">
+<!-- 筛选条件 -->
+<section class="mt-3">
+<h2 class="text-[12px] font-semibold mb-2 px-1">时间范围</h2>
+<div class="flex flex-wrap gap-1.5">
+<button class="range-chip chip-active text-[11.5px] px-3 py-1.5 rounded-full border border-[#ECEFED] bg-white text-[#4B5A53]" data-range="本月" onclick="pickRange(this)" type="button">本月</button>
+<button class="range-chip text-[11.5px] px-3 py-1.5 rounded-full border border-[#ECEFED] bg-white text-[#4B5A53]" data-range="上月" onclick="pickRange(this)" type="button">上月</button>
+<button class="range-chip text-[11.5px] px-3 py-1.5 rounded-full border border-[#ECEFED] bg-white text-[#4B5A53]" data-range="近3个月" onclick="pickRange(this)" type="button">近 3 个月</button>
+<button class="range-chip text-[11.5px] px-3 py-1.5 rounded-full border border-[#ECEFED] bg-white text-[#4B5A53]" data-range="今年" onclick="pickRange(this)" type="button">今年</button>
+<button class="range-chip text-[11.5px] px-3 py-1.5 rounded-full border border-[#ECEFED] bg-white text-[#4B5A53]" data-range="自定义" onclick="pickRange(this)" type="button">自定义</button>
+</div>
+<div class="hidden mt-2 grid grid-cols-2 gap-2" id="customRange">
+<div class="rounded-[12px] bg-white border border-[#ECEFED] px-3 py-2.5">
+<p class="text-[9.5px] text-[#8A968F]">开始日期</p>
+<p class="num text-[12px] mt-0.5">2026-10-01</p>
+</div>
+<div class="rounded-[12px] bg-white border border-[#ECEFED] px-3 py-2.5">
+<p class="text-[9.5px] text-[#8A968F]">结束日期</p>
+<p class="num text-[12px] mt-0.5">2026-10-24</p>
+</div>
+</div>
+</section>
+<section class="mt-4">
+<h2 class="text-[12px] font-semibold mb-2 px-1">类型</h2>
+<div class="flex gap-1.5">
+<button class="type-chip chip-active text-[11.5px] px-3 py-1.5 rounded-full border border-[#ECEFED] bg-white text-[#4B5A53]" data-type="all" onclick="pickType(this)" type="button">全部</button>
+<button class="type-chip text-[11.5px] px-3 py-1.5 rounded-full border border-[#ECEFED] bg-white text-[#4B5A53]" data-type="expense" onclick="pickType(this)" type="button">支出</button>
+<button class="type-chip text-[11.5px] px-3 py-1.5 rounded-full border border-[#ECEFED] bg-white text-[#4B5A53]" data-type="income" onclick="pickType(this)" type="button">收入</button>
+</div>
+</section>
+<section class="mt-4">
+<div class="flex items-center justify-between px-1 mb-2">
+<h2 class="text-[12px] font-semibold">分类</h2>
+<button class="text-[10.5px] text-[#8A968F]" onclick="clearCategories()" type="button">重置</button>
+</div>
+<div class="grid grid-cols-4 gap-1.5">
+<button class="cat-chip text-[11px] py-2 rounded-[11px] border border-[#ECEFED] bg-white flex items-center justify-center gap-1 text-[#4B5A53]" data-cat="餐饮" onclick="toggleCat(this)" type="button">🍚 餐饮</button>
+<button class="cat-chip text-[11px] py-2 rounded-[11px] border border-[#ECEFED] bg-white flex items-center justify-center gap-1 text-[#4B5A53]" data-cat="购物" onclick="toggleCat(this)" type="button">🛍️ 购物</button>
+<button class="cat-chip text-[11px] py-2 rounded-[11px] border border-[#ECEFED] bg-white flex items-center justify-center gap-1 text-[#4B5A53]" data-cat="居住" onclick="toggleCat(this)" type="button">🏠 居住</button>
+<button class="cat-chip text-[11px] py-2 rounded-[11px] border border-[#ECEFED] bg-white flex items-center justify-center gap-1 text-[#4B5A53]" data-cat="娱乐" onclick="toggleCat(this)" type="button">🎮 娱乐</button>
+<button class="cat-chip text-[11px] py-2 rounded-[11px] border border-[#ECEFED] bg-white flex items-center justify-center gap-1 text-[#4B5A53]" data-cat="零食饮料" onclick="toggleCat(this)" type="button">🧋 零食</button>
+<button class="cat-chip text-[11px] py-2 rounded-[11px] border border-[#ECEFED] bg-white flex items-center justify-center gap-1 text-[#4B5A53]" data-cat="服饰" onclick="toggleCat(this)" type="button">👕 服饰</button>
+<button class="cat-chip text-[11px] py-2 rounded-[11px] border border-[#ECEFED] bg-white flex items-center justify-center gap-1 text-[#4B5A53]" data-cat="交通" onclick="toggleCat(this)" type="button">🚌 交通</button>
+<button class="cat-chip text-[11px] py-2 rounded-[11px] border border-[#ECEFED] bg-white flex items-center justify-center gap-1 text-[#4B5A53]" data-cat="其他" onclick="toggleCat(this)" type="button">📦 其他</button>
+</div>
+</section>
+<section class="mt-4">
+<h2 class="text-[12px] font-semibold mb-2 px-1">金额区间</h2>
+<div class="flex items-center gap-2">
+<div class="flex-1 rounded-[12px] bg-white border border-[#ECEFED] px-3 py-2 flex items-center gap-1">
+<span class="text-[11px] text-[#8A968F]">¥</span>
+<input class="bg-transparent outline-none text-[12px] w-full num" id="minAmount" inputmode="decimal" oninput="applyFilters()" placeholder="最低" type="number"/>
+</div>
+<span class="text-[#B4BDB7]">—</span>
+<div class="flex-1 rounded-[12px] bg-white border border-[#ECEFED] px-3 py-2 flex items-center gap-1">
+<span class="text-[11px] text-[#8A968F]">¥</span>
+<input class="bg-transparent outline-none text-[12px] w-full num" id="maxAmount" inputmode="decimal" oninput="applyFilters()" placeholder="最高" type="number"/>
+</div>
+</div>
+</section>
+<!-- 结果 -->
+<section class="mt-4">
+<div class="flex items-center justify-between px-1 mb-2">
+<h2 class="text-[12px] font-semibold">筛选结果 <span class="num text-[#1F8A5C]" id="resultCount">4</span> 笔</h2>
+<p class="text-[10.5px] text-[#8A968F] num" id="resultSum">合计支出 ¥253.50</p>
+</div>
+<div class="bg-white border border-[#ECEFED] rounded-[18px] overflow-hidden">
+<div id="resultList"></div>
+<div class="hidden py-10 flex flex-col items-center" id="emptyState">
+<div class="w-14 h-14 rounded-full bg-[#F4F7F5] flex items-center justify-center text-[24px]">🔍</div>
+<p class="text-[12px] text-[#4B5A53] mt-2.5">没有找到符合条件的流水</p>
+<p class="text-[10.5px] text-[#8A968F] mt-1">试试放宽时间范围或去掉关键词</p>
+<button class="mt-3 text-[11.5px] text-[#1F8A5C] border border-[#DCEBE3] rounded-full px-3 py-1.5" onclick="resetAll()" type="button">重置全部筛选</button>
+</div>
+</div>
+</section>
+<!-- 搜索历史 -->
+<section class="mt-4">
+<div class="flex items-center justify-between px-1 mb-2">
+<h2 class="text-[12px] font-semibold">最近搜索</h2>
+<button class="text-[10.5px] text-[#8A968F]" onclick="document.getElementById('historyRow').innerHTML=''" type="button">清空</button>
+</div>
+<div class="flex flex-wrap gap-1.5" id="historyRow">
+<button class="text-[11px] px-2.5 py-1.5 rounded-full bg-white border border-[#ECEFED] text-[#4B5A53]" onclick="setKeyword('外卖')" type="button">外卖</button>
+<button class="text-[11px] px-2.5 py-1.5 rounded-full bg-white border border-[#ECEFED] text-[#4B5A53]" onclick="setKeyword('地铁')" type="button">地铁</button>
+<button class="text-[11px] px-2.5 py-1.5 rounded-full bg-white border border-[#ECEFED] text-[#4B5A53]" onclick="setKeyword('房租')" type="button">房租</button>
+<button class="text-[11px] px-2.5 py-1.5 rounded-full bg-white border border-[#ECEFED] text-[#4B5A53]" onclick="setKeyword('咖啡')" type="button">咖啡</button>
+</div>
+</section>
+</main>
+<!-- 底部操作 -->
+<div class="shrink-0 bg-white border-t border-[#ECEFED] px-5 py-3 flex gap-2">
+<button class="w-[110px] py-3 rounded-[14px] bg-[#F4F7F5] text-[12.5px] text-[#4B5A53]" onclick="resetAll()" type="button">重置</button>
+<button class="flex-1 py-3 rounded-[14px] bg-[#1F8A5C] text-white text-[13px] font-medium active:bg-[#146B46]" onclick="applyFilters()" type="button">查看结果</button>
+</div>
+</div>
+<script>
+    const records = [
+      { icon: '🍚', bg: '#FFF1E4', cat: '餐饮', note: '公司楼下的牛腩饭', date: '10-24', time: '12:20', amount: 38.00, type: 'expense' },
+      { icon: '🚌', bg: '#E9F1FF', cat: '交通', note: '地铁通勤 · 往返', date: '10-24', time: '08:42', amount: 12.00, type: 'expense' },
+      { icon: '🛍️', bg: '#FFEDEF', cat: '购物', note: '超市采购 · 牛奶与水果', date: '10-24', time: '19:05', amount: 62.50, type: 'expense' },
+      { icon: '🧋', bg: '#FFF3E6', cat: '零食饮料', note: '生椰拿铁 ×2', date: '10-23', time: '15:40', amount: 36.00, type: 'expense' },
+      { icon: '🍚', bg: '#FFF1E4', cat: '餐饮', note: '外卖 · 麻辣烫', date: '10-20', time: '12:35', amount: 41.00, type: 'expense' },
+      { icon: '🚌', bg: '#E9F1FF', cat: '交通', note: '打车回家', date: '10-22', time: '22:05', amount: 30.00, type: 'expense' },
+      { icon: '💰', bg: '#E7F4EC', cat: '工资', note: '10 月薪资到账', date: '10-23', time: '09:30', amount: 7200.00, type: 'income' }
+    ];
+    let activeRange = '本月';
+    let activeType = 'all';
+    let activeCats = [];
+
+    function pickRange(btn) {
+      document.querySelectorAll('.range-chip').forEach(function (b) { b.classList.remove('chip-active'); });
+      btn.classList.add('chip-active');
+      activeRange = btn.dataset.range;
+      document.getElementById('customRange').classList.toggle('hidden', activeRange !== '自定义');
+      applyFilters();
+    }
+
+    function pickType(btn) {
+      document.querySelectorAll('.type-chip').forEach(function (b) { b.classList.remove('chip-active'); });
+      btn.classList.add('chip-active');
+      activeType = btn.dataset.type;
+      applyFilters();
+    }
+
+    function toggleCat(btn) {
+      const cat = btn.dataset.cat;
+      if (activeCats.includes(cat)) {
+        activeCats = activeCats.filter(function (c) { return c !== cat; });
+        btn.classList.remove('chip-active');
+      } else {
+        activeCats.push(cat);
+        btn.classList.add('chip-active');
+      }
+      applyFilters();
+    }
+
+    function clearCategories() {
+      activeCats = [];
+      document.querySelectorAll('.cat-chip').forEach(function (b) { b.classList.remove('chip-active'); });
+      applyFilters();
+    }
+
+    function setKeyword(word) {
+      document.getElementById('keyword').value = word;
+      document.getElementById('clearBtn').classList.remove('hidden');
+      applyFilters();
+    }
+
+    function clearKeyword() {
+      document.getElementById('keyword').value = '';
+      document.getElementById('clearBtn').classList.add('hidden');
+      applyFilters();
+    }
+
+    function resetAll() {
+      document.getElementById('keyword').value = '';
+      document.getElementById('clearBtn').classList.add('hidden');
+      document.getElementById('minAmount').value = '';
+      document.getElementById('maxAmount').value = '';
+      document.getElementById('customRange').classList.add('hidden');
+      activeCats = [];
+      activeType = 'all';
+      activeRange = '本月';
+      document.querySelectorAll('.cat-chip').forEach(function (b) { b.classList.remove('chip-active'); });
+      document.querySelectorAll('.type-chip').forEach(function (b, i) { b.classList.toggle('chip-active', i === 0); });
+      document.querySelectorAll('.range-chip').forEach(function (b, i) { b.classList.toggle('chip-active', i === 0); });
+      applyFilters();
+    }
+
+    function applyFilters() {
+      const kw = document.getElementById('keyword').value.trim();
+      document.getElementById('clearBtn').classList.toggle('hidden', kw === '');
+      const min = parseFloat(document.getElementById('minAmount').value);
+      const max = parseFloat(document.getElementById('maxAmount').value);
+
+      let sumExpense = 0;
+      let sumIncome = 0;
+      const matched = records.filter(function (r) {
+        if (activeType !== 'all' && r.type !== activeType) return false;
+        if (activeCats.length > 0 && !activeCats.includes(r.cat)) return false;
+        if (kw && !(r.note.includes(kw) || r.cat.includes(kw) || String(r.amount).includes(kw))) return false;
+        if (!isNaN(min) && r.amount < min) return false;
+        if (!isNaN(max) && r.amount > max) return false;
+        return true;
+      });
+
+      matched.forEach(function (r) {
+        if (r.type === 'expense') sumExpense += r.amount;
+        else sumIncome += r.amount;
+      });
+
+      const list = document.getElementById('resultList');
+      list.innerHTML = matched.map(function (r) {
+        const isIncome = r.type === 'income';
+        return '<a href="detail.html" class="flex items-center gap-3 px-4 py-3 border-b border-[#F2F5F3] last:border-b-0 active:bg-[#FAFCFB]">' +
+          '<div class="w-9 h-9 rounded-[12px] flex items-center justify-center text-[16px] shrink-0" style="background:' + r.bg + '">' + r.icon + '</div>' +
+          '<div class="flex-1 min-w-0"><p class="text-[13px] font-medium truncate">' + r.cat + '</p>' +
+          '<p class="text-[10px] text-[#8A968F] mt-0.5 truncate">' + r.note + ' · ' + r.date + ' ' + r.time + '</p></div>' +
+          '<p class="num text-[13.5px] font-semibold shrink-0 ' + (isIncome ? 'text-[#1F8A5C]' : 'text-[#17241F]') + '">' + (isIncome ? '+¥' : '-¥') + r.amount.toFixed(2) + '</p></a>';
+      }).join('');
+
+      document.getElementById('resultCount').textContent = String(matched.length);
+      document.getElementById('resultSum').textContent = sumIncome > 0
+        ? '合计支出 ¥' + sumExpense.toFixed(2) + ' · 收入 ¥' + sumIncome.toFixed(2)
+        : '合计支出 ¥' + sumExpense.toFixed(2);
+      document.getElementById('emptyState').classList.toggle('hidden', matched.length > 0);
+    }
+
+    applyFilters();
+  </script>
+</body>
+</html>

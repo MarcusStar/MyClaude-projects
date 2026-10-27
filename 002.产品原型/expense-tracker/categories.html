@@ -1,0 +1,352 @@
+<!DOCTYPE html>
+
+<html class="w-full h-full overflow-hidden" lang="zh-CN">
+<head>
+<meta charset="utf-8"/>
+<meta content="width=device-width, initial-scale=1.0" name="viewport"/>
+<title>分类管理 · 小账本</title>
+<script src="https://modao.cc/agent-py/static/source/js/tailwindcss.js"></script>
+<script src="https://modao.cc/agent-py/static/source/js/iconify-icon.min.js"></script>
+<style>
+  * { -webkit-tap-highlight-color: transparent; }
+  body { font-family:-apple-system,BlinkMacSystemFont,"PingFang SC","Hiragino Sans GB","Microsoft YaHei",sans-serif; color:#17241F; }
+  .num { font-variant-numeric: tabular-nums; letter-spacing:-0.02em; }
+  .scroll-area { scrollbar-width:none; -ms-overflow-style:none; }
+  .scroll-area::-webkit-scrollbar { display:none; width:0; height:0; }
+  .card { background:#fff; border:1px solid #ECEFED; border-radius:20px; }
+  .cat-row.dragging { opacity: .45; border:1px dashed #9CCBB2; border-radius:14px; background:#F4FBF7; }
+</style>
+</head>
+<body class="w-full h-full m-0 overflow-hidden flex items-center justify-center bg-[#E8EDE9]">
+<div class="w-full h-full max-w-[393px] max-h-[852px] bg-[#F4F7F5] flex flex-col overflow-hidden relative">
+<header class="shrink-0 px-5 pt-4 pb-3">
+<div class="flex items-center justify-between">
+<a aria-label="返回设置" class="w-9 h-9 rounded-full bg-white border border-[#ECEFED] flex items-center justify-center text-[#4B5A53]" href="https://modao.cc/agent-py/workspace/6addbaacde2fb8a03b1662d7/expense-tracker.html/settings.html?render_html=true">
+<iconify-icon class="text-[16px]" icon="ph:caret-left"></iconify-icon>
+</a>
+<p class="text-[14px] font-semibold">分类管理</p>
+<button aria-label="新增分类" class="w-9 h-9 rounded-full bg-[#1F8A5C] text-white flex items-center justify-center" onclick="openAdd()" type="button">
+<iconify-icon class="text-[17px]" icon="ph:plus"></iconify-icon>
+</button>
+</div>
+</header>
+<main class="flex-1 min-h-0 overflow-y-auto overflow-x-hidden scroll-area px-5 pb-8" style="scrollbar-width:none;-ms-overflow-style:none;">
+<div class="flex items-center gap-2 text-[10.5px] text-[#8A968F] bg-white border border-[#ECEFED] rounded-[14px] px-3.5 py-2.5">
+<iconify-icon class="text-[14px] text-[#1F8A5C]" icon="ph:hand-grabbing"></iconify-icon>
+        长按分类行可拖拽调整顺序，拖动后自动保存
+      </div>
+<div class="flex items-center gap-1.5 p-0.5 rounded-full bg-white border border-[#ECEFED] mt-4 w-full">
+<button class="flex-1 py-1.5 rounded-full text-[12px] font-medium bg-[#1F8A5C] text-white" id="tabExpense" onclick="switchTab('expense')" type="button">支出分类（12）</button>
+<button class="flex-1 py-1.5 rounded-full text-[12px] text-[#4B5A53]" id="tabIncome" onclick="switchTab('income')" type="button">收入分类（7）</button>
+</div>
+<!-- 支出分类 -->
+<section class="mt-3" id="expensePane">
+<div class="flex items-center justify-between px-1 mb-2">
+<p class="text-[11px] text-[#8A968F]">预设分类 11 个 · 自定义 1 个</p>
+<p class="text-[10.5px] text-[#8A968F]">最多 20 个</p>
+</div>
+<div class="card overflow-hidden" id="expenseList"></div>
+</section>
+<!-- 收入分类 -->
+<section class="mt-3 hidden" id="incomePane">
+<div class="flex items-center justify-between px-1 mb-2">
+<p class="text-[11px] text-[#8A968F]">预设分类 7 个</p>
+<p class="text-[10.5px] text-[#8A968F]">最多 20 个</p>
+</div>
+<div class="card overflow-hidden" id="incomeList"></div>
+</section>
+<!-- 提示 -->
+<section class="mt-3 rounded-[16px] bg-[#FFFBF0] border border-[#F7ECCF] px-4 py-3">
+<div class="flex items-start gap-2">
+<iconify-icon class="text-[#C98A2B] text-[14px] mt-0.5" icon="ph:info"></iconify-icon>
+<p class="text-[10.5px] text-[#9A6B22] leading-relaxed">删除分类后，已有流水会自动移入「其他」，不会丢失记录。预设分类不可删除，但可以修改名称与图标。</p>
+</div>
+</section>
+</main>
+<!-- 新增 / 编辑分类弹层 -->
+<div class="hidden absolute inset-0 z-30 bg-[rgba(23,36,31,0.42)]" id="editBackdrop" onclick="closeEdit()"></div>
+<section class="hidden absolute inset-x-0 bottom-0 z-40 bg-white rounded-t-[24px] px-5 pt-3 pb-5" id="editSheet">
+<div class="w-9 h-1 rounded-full bg-[#E2E8E4] mx-auto mb-4"></div>
+<div class="flex items-center justify-between">
+<h2 class="text-[15px] font-semibold" id="editTitle">新增分类</h2>
+<button class="w-8 h-8 rounded-full bg-[#F4F7F5] flex items-center justify-center text-[#4B5A53]" onclick="closeEdit()" type="button">
+<iconify-icon class="text-[15px]" icon="ph:x"></iconify-icon>
+</button>
+</div>
+<div class="mt-4">
+<p class="text-[11.5px] text-[#8A968F] mb-2">分类名称</p>
+<div class="rounded-[12px] bg-[#F4F7F5] px-3.5 py-3 flex items-center gap-2">
+<span class="text-[16px]" id="previewIcon">🐱</span>
+<input class="bg-transparent outline-none text-[13px] w-full placeholder:text-[#9AA69F]" id="catName" maxlength="6" placeholder="例如：宠物"/>
+<span class="text-[10px] text-[#B4BDB7]">最多 6 字</span>
+</div>
+</div>
+<div class="mt-3">
+<p class="text-[11.5px] text-[#8A968F] mb-2">选择图标</p>
+<div class="grid grid-cols-8 gap-1.5">
+<button class="icon-pick w-9 h-9 rounded-[11px] bg-[#F4F7F5] flex items-center justify-center text-[16px]" data-icon="🐱" type="button">🐱</button>
+<button class="icon-pick w-9 h-9 rounded-[11px] bg-[#F4F7F5] flex items-center justify-center text-[16px]" data-icon="🐶" type="button">🐶</button>
+<button class="icon-pick w-9 h-9 rounded-[11px] bg-[#F4F7F5] flex items-center justify-center text-[16px]" data-icon="✈️" type="button">✈️</button>
+<button class="icon-pick w-9 h-9 rounded-[11px] bg-[#F4F7F5] flex items-center justify-center text-[16px]" data-icon="🎬" type="button">🎬</button>
+<button class="icon-pick w-9 h-9 rounded-[11px] bg-[#F4F7F5] flex items-center justify-center text-[16px]" data-icon="💄" type="button">💄</button>
+<button class="icon-pick w-9 h-9 rounded-[11px] bg-[#F4F7F5] flex items-center justify-center text-[16px]" data-icon="🏋️" type="button">🏋️</button>
+<button class="icon-pick w-9 h-9 rounded-[11px] bg-[#F4F7F5] flex items-center justify-center text-[16px]" data-icon="🎧" type="button">🎧</button>
+<button class="icon-pick w-9 h-9 rounded-[11px] bg-[#F4F7F5] flex items-center justify-center text-[16px]" data-icon="💡" type="button">💡</button>
+</div>
+</div>
+<div class="mt-3">
+<p class="text-[11.5px] text-[#8A968F] mb-2">分类底色</p>
+<div class="flex gap-2">
+<button class="color-pick w-8 h-8 rounded-full bg-[#FFF1E4] border-2 border-[#1F8A5C]" data-color="#FFF1E4" type="button"></button>
+<button class="color-pick w-8 h-8 rounded-full bg-[#E7F4EC] border-2 border-transparent" data-color="#E7F4EC" type="button"></button>
+<button class="color-pick w-8 h-8 rounded-full bg-[#E9F1FF] border-2 border-transparent" data-color="#E9F1FF" type="button"></button>
+<button class="color-pick w-8 h-8 rounded-full bg-[#F2EEFF] border-2 border-transparent" data-color="#F2EEFF" type="button"></button>
+<button class="color-pick w-8 h-8 rounded-full bg-[#FFEDEF] border-2 border-transparent" data-color="#FFEDEF" type="button"></button>
+<button class="color-pick w-8 h-8 rounded-full bg-[#F1F3F4] border-2 border-transparent" data-color="#F1F3F4" type="button"></button>
+</div>
+</div>
+<button class="w-full mt-5 py-3 rounded-[14px] bg-[#1F8A5C] text-white text-[13px] font-medium active:bg-[#146B46]" onclick="saveCategory()" type="button">保存分类</button>
+</section>
+<div class="hidden absolute left-1/2 -translate-x-1/2 bottom-10 z-50 bg-[#17241F] text-white text-[12px] px-4 py-2.5 rounded-full shadow-lg" id="toast"></div>
+</div>
+<script>
+    const expenseCats = [
+      { name: '餐饮', icon: '🍚', bg: '#FFF1E4', preset: true, used: 14 },
+      { name: '购物', icon: '🛍️', bg: '#FFEDEF', preset: true, used: 4 },
+      { name: '居住', icon: '🏠', bg: '#EAF6F2', preset: true, used: 2 },
+      { name: '娱乐', icon: '🎮', bg: '#F2EEFF', preset: true, used: 3 },
+      { name: '零食饮料', icon: '🧋', bg: '#FFF3E6', preset: true, used: 5 },
+      { name: '服饰', icon: '👕', bg: '#FDEEF3', preset: true, used: 1 },
+      { name: '交通', icon: '🚌', bg: '#E9F1FF', preset: true, used: 3 },
+      { name: '通讯', icon: '📱', bg: '#EEF2FF', preset: true, used: 1 },
+      { name: '医疗', icon: '💊', bg: '#EAF7F4', preset: true, used: 1 },
+      { name: '学习', icon: '📚', bg: '#FFF6E0', preset: true, used: 1 },
+      { name: '人情', icon: '🎁', bg: '#FFEDF5', preset: true, used: 1 },
+      { name: '宠物', icon: '🐱', bg: '#FFF1E4', preset: false, used: 2 }
+    ];
+    const incomeCats = [
+      { name: '工资', icon: '💰', bg: '#E7F4EC', preset: true, used: 1 },
+      { name: '奖金', icon: '🏅', bg: '#FFF6E0', preset: true, used: 1 },
+      { name: '理财收益', icon: '📈', bg: '#E9F1FF', preset: true, used: 2 },
+      { name: '兼职', icon: '💻', bg: '#F2EEFF', preset: true, used: 0 },
+      { name: '红包', icon: '🧧', bg: '#FFEDEF', preset: true, used: 1 },
+      { name: '报销', icon: '🧾', bg: '#EAF6F2', preset: true, used: 1 },
+      { name: '其他', icon: '📦', bg: '#F1F3F4', preset: true, used: 0 }
+    ];
+
+    let currentType = 'expense';
+    let pickedIcon = '🐱';
+    let pickedColor = '#FFF1E4';
+    let dragEl = null;
+    let editingName = '';
+    let editingPreset = false;
+
+    function renderList() {
+      const list = currentType === 'expense' ? expenseCats : incomeCats;
+      const container = document.getElementById(currentType === 'expense' ? 'expenseList' : 'incomeList');
+      container.innerHTML = '';
+      list.forEach(function (cat, index) {
+        const row = document.createElement('div');
+        row.className = 'cat-row flex items-center gap-3 px-4 py-3' + (index < list.length - 1 ? ' border-b border-[#F2F5F3]' : '');
+        row.draggable = true;
+        row.dataset.index = String(index);
+        row.innerHTML =
+          '<div class="w-9 h-9 rounded-[12px] flex items-center justify-center text-[17px] shrink-0" style="background:' + cat.bg + '">' + cat.icon + '</div>' +
+          '<div class="flex-1 min-w-0">' +
+            '<div class="flex items-center gap-1.5">' +
+              '<p class="text-[13px] font-medium">' + cat.name + '</p>' +
+              (cat.preset ? '<span class="text-[9px] text-[#8A968F] bg-[#F4F7F5] rounded px-1 py-0.5">预设</span>' : '<span class="text-[9px] text-[#1F8A5C] bg-[#E7F4EC] rounded px-1 py-0.5">自定义</span>') +
+            '</div>' +
+            '<p class="text-[10px] text-[#8A968F] mt-0.5">本月 ' + cat.used + ' 笔流水</p>' +
+          '</div>' +
+          '<button type="button" class="row-edit w-7 h-7 rounded-full bg-[#F4F7F5] flex items-center justify-center text-[#4B5A53]" aria-label="编辑' + cat.name + '"><iconify-icon icon="ph:pencil-simple" class="text-[13px]"></iconify-icon></button>' +
+          '<button type="button" class="row-del w-7 h-7 rounded-full flex items-center justify-center ' + (cat.preset ? 'bg-[#FAFBFA] text-[#CFD8D2] cursor-not-allowed' : 'bg-[#FFF3F1] text-[#E8654F]') + '" aria-label="删除' + cat.name + '"><iconify-icon icon="ph:trash" class="text-[13px]"></iconify-icon></button>' +
+          '<iconify-icon icon="ph:dots-six-vertical" class="text-[15px] text-[#C9D2CC] cursor-grab"></iconify-icon>';
+
+        row.querySelector('.row-edit').addEventListener('click', function () {
+          openEdit(cat);
+        });
+        row.querySelector('.row-del').addEventListener('click', function () {
+          if (cat.preset) {
+            showToast('预设分类不可删除，可修改名称');
+            return;
+          }
+          list.splice(index, 1);
+          renderList();
+          showToast('已删除分类「' + cat.name + '」');
+        });
+
+        row.addEventListener('dragstart', function () {
+          dragEl = row;
+          row.classList.add('dragging');
+        });
+        row.addEventListener('dragend', function () {
+          row.classList.remove('dragging');
+          dragEl = null;
+          persistOrder();
+        });
+        row.addEventListener('dragover', function (e) {
+          e.preventDefault();
+          if (!dragEl || dragEl === row) return;
+          const rect = row.getBoundingClientRect();
+          const after = (e.clientY - rect.top) > rect.height / 2;
+          container.insertBefore(dragEl, after ? row.nextSibling : row);
+        });
+
+        container.appendChild(row);
+      });
+      clearDividers(container);
+    }
+
+    function clearDividers(container) {
+      const rows = Array.from(container.children);
+      rows.forEach(function (row, i) {
+        row.classList.toggle('border-b', i < rows.length - 1);
+        row.classList.toggle('border-[#F2F5F3]', i < rows.length - 1);
+      });
+    }
+
+    function persistOrder() {
+      const ids = Array.from(document.getElementById(currentType === 'expense' ? 'expenseList' : 'incomeList').children)
+        .map(function (row) { return row.querySelector('p').textContent; });
+      showToast('顺序已保存：' + ids.slice(0, 4).join(' · ') + '…');
+    }
+
+    function switchTab(type) {
+      currentType = type;
+      const isExpense = type === 'expense';
+      document.getElementById('tabExpense').className = 'flex-1 py-1.5 rounded-full text-[12px] ' + (isExpense ? 'font-medium bg-[#1F8A5C] text-white' : 'text-[#4B5A53]');
+      document.getElementById('tabIncome').className = 'flex-1 py-1.5 rounded-full text-[12px] ' + (!isExpense ? 'font-medium bg-[#1F8A5C] text-white' : 'text-[#4B5A53]');
+      document.getElementById('expensePane').classList.toggle('hidden', !isExpense);
+      document.getElementById('incomePane').classList.toggle('hidden', isExpense);
+      renderAll();
+    }
+
+    function openAdd() {
+      pickedIcon = '🐱';
+      pickedColor = '#FFF1E4';
+      editingName = '';
+      editingPreset = false;
+      document.getElementById('previewIcon').textContent = pickedIcon;
+      document.getElementById('catName').value = '';
+      document.getElementById('editTitle').textContent = '新增分类';
+      document.querySelectorAll('.icon-pick').forEach(function (b) { b.classList.remove('ring-2', 'ring-[#1F8A5C]'); });
+      document.querySelectorAll('.color-pick').forEach(function (b) {
+        b.classList.toggle('border-[#1F8A5C]', b.dataset.color === pickedColor);
+        b.classList.toggle('border-transparent', b.dataset.color !== pickedColor);
+      });
+      document.getElementById('editBackdrop').classList.remove('hidden');
+      document.getElementById('editSheet').classList.remove('hidden');
+    }
+
+    function openEdit(cat) {
+      editingName = cat.name;
+      editingPreset = cat.preset;
+      pickedIcon = cat.icon;
+      pickedColor = cat.bg;
+      document.getElementById('editTitle').textContent = '编辑分类 · ' + cat.name;
+      document.getElementById('previewIcon').textContent = cat.icon;
+      document.getElementById('catName').value = cat.name;
+      document.querySelectorAll('.icon-pick').forEach(function (b) {
+        b.classList.toggle('ring-2', b.dataset.icon === cat.icon);
+        b.classList.toggle('ring-[#1F8A5C]', b.dataset.icon === cat.icon);
+      });
+      document.querySelectorAll('.color-pick').forEach(function (b) {
+        b.classList.toggle('border-[#1F8A5C]', b.dataset.color === cat.bg);
+        b.classList.toggle('border-transparent', b.dataset.color !== cat.bg);
+      });
+      document.getElementById('editBackdrop').classList.remove('hidden');
+      document.getElementById('editSheet').classList.remove('hidden');
+    }
+
+    function closeEdit() {
+      document.getElementById('editBackdrop').classList.add('hidden');
+      document.getElementById('editSheet').classList.add('hidden');
+    }
+
+    document.querySelectorAll('.icon-pick').forEach(function (btn) {
+      btn.addEventListener('click', function () {
+        pickedIcon = btn.dataset.icon;
+        document.getElementById('previewIcon').textContent = pickedIcon;
+        document.querySelectorAll('.icon-pick').forEach(function (b) { b.classList.remove('ring-2', 'ring-[#1F8A5C]'); });
+        btn.classList.add('ring-2', 'ring-[#1F8A5C]');
+      });
+    });
+
+    document.querySelectorAll('.color-pick').forEach(function (btn) {
+      btn.addEventListener('click', function () {
+        pickedColor = btn.dataset.color;
+        document.querySelectorAll('.color-pick').forEach(function (b) {
+          b.classList.toggle('border-[#1F8A5C]', b.dataset.color === pickedColor);
+          b.classList.toggle('border-transparent', b.dataset.color !== pickedColor);
+        });
+      });
+    });
+
+    function saveCategory() {
+      const name = document.getElementById('catName').value.trim();
+      if (!name) {
+        document.getElementById('catName').focus();
+        return;
+      }
+      const list = currentType === 'expense' ? expenseCats : incomeCats;
+      const editIndex = list.findIndex(function (c) { return c.name === editingName; });
+      if (editIndex === -1 && list.length >= 20) {
+        showToast('分类数量已达上限 20 个');
+        return;
+      }
+      if (editIndex > -1) {
+        list[editIndex].name = name;
+        list[editIndex].icon = pickedIcon;
+        list[editIndex].bg = pickedColor;
+      } else {
+        list.push({ name: name, icon: pickedIcon, bg: pickedColor, preset: false, used: 0 });
+      }
+      renderAll();
+      closeEdit();
+      showToast(editIndex > -1 ? '已保存「' + name + '」' : '已新增分类「' + name + '」');
+    }
+
+    function renderAll() {
+      if (currentType === 'expense') {
+        renderList();
+      } else {
+        renderListIncome();
+      }
+    }
+
+    function showToast(msg) {
+      const toast = document.getElementById('toast');
+      toast.textContent = msg;
+      toast.classList.remove('hidden');
+      clearTimeout(window.__toastTimer);
+      window.__toastTimer = setTimeout(function () { toast.classList.add('hidden'); }, 1800);
+    }
+
+    renderList();
+    renderListIncome();
+    function renderListIncome() {
+      const container = document.getElementById('incomeList');
+      container.innerHTML = '';
+      incomeCats.forEach(function (cat, index) {
+        const row = document.createElement('div');
+        row.className = 'flex items-center gap-3 px-4 py-3' + (index < incomeCats.length - 1 ? ' border-b border-[#F2F5F3]' : '');
+        row.innerHTML =
+          '<div class="w-9 h-9 rounded-[12px] flex items-center justify-center text-[17px] shrink-0" style="background:' + cat.bg + '">' + cat.icon + '</div>' +
+          '<div class="flex-1 min-w-0">' +
+            '<div class="flex items-center gap-1.5"><p class="text-[13px] font-medium">' + cat.name + '</p>' +
+            '<span class="text-[9px] text-[#8A968F] bg-[#F4F7F5] rounded px-1 py-0.5">预设</span></div>' +
+            '<p class="text-[10px] text-[#8A968F] mt-0.5">本月 ' + cat.used + ' 笔流水</p>' +
+          '</div>' +
+          '<button type="button" class="w-7 h-7 rounded-full bg-[#F4F7F5] flex items-center justify-center text-[#4B5A53]" aria-label="编辑' + cat.name + '"><iconify-icon icon="ph:pencil-simple" class="text-[13px]"></iconify-icon></button>' +
+          '<button type="button" class="w-7 h-7 rounded-full bg-[#FAFBFA] text-[#CFD8D2] flex items-center justify-center" aria-label="预设不可删除"><iconify-icon icon="ph:trash" class="text-[13px]"></iconify-icon></button>' +
+          '<iconify-icon icon="ph:dots-six-vertical" class="text-[15px] text-[#C9D2CC]"></iconify-icon>';
+        row.querySelector('button').addEventListener('click', function () {
+          openEdit(cat);
+        });
+        container.appendChild(row);
+      });
+    }
+  </script>
+</body>
+</html>

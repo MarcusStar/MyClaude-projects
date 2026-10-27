@@ -1,0 +1,221 @@
+<!DOCTYPE html>
+
+<html class="w-full h-full overflow-hidden" lang="zh-CN">
+<head>
+<meta charset="utf-8"/>
+<meta content="width=device-width, initial-scale=1.0" name="viewport"/>
+<title>分类流水明细 · 小账本</title>
+<script src="https://modao.cc/agent-py/static/source/js/tailwindcss.js"></script>
+<script src="https://modao.cc/agent-py/static/source/js/iconify-icon.min.js"></script>
+<style>
+  * { -webkit-tap-highlight-color: transparent; }
+  body { font-family:-apple-system,BlinkMacSystemFont,"PingFang SC","Hiragino Sans GB","Microsoft YaHei",sans-serif; color:#17241F; }
+  .num { font-variant-numeric: tabular-nums; letter-spacing:-0.02em; }
+  .scroll-area { scrollbar-width:none; -ms-overflow-style:none; }
+  .scroll-area::-webkit-scrollbar { display:none; width:0; height:0; }
+  .card { background:#fff; border:1px solid #ECEFED; border-radius:20px; }
+  .rank-track { background:#F2F5F3; }
+</style>
+</head>
+<body class="w-full h-full m-0 overflow-hidden flex items-center justify-center bg-[#E8EDE9]">
+<div class="w-full h-full max-w-[393px] max-h-[852px] bg-[#F4F7F5] flex flex-col overflow-hidden relative">
+<!-- 顶部 -->
+<header class="shrink-0 px-5 pt-4 pb-3 bg-[#F4F7F5]">
+<div class="flex items-center justify-between">
+<a aria-label="返回统计" class="w-9 h-9 rounded-full bg-white border border-[#ECEFED] flex items-center justify-center text-[#4B5A53]" href="https://modao.cc/agent-py/workspace/6addbaacde2fb8a03b1662d7/expense-tracker.html/statistics.html?render_html=true">
+<iconify-icon class="text-[16px]" icon="ph:caret-left"></iconify-icon>
+</a>
+<p class="text-[14px] font-semibold">分类明细</p>
+<a aria-label="筛选本分类流水" class="w-9 h-9 rounded-full bg-white border border-[#ECEFED] flex items-center justify-center text-[#4B5A53]" href="https://modao.cc/agent-py/workspace/6addbaacde2fb8a03b1662d7/expense-tracker.html/search.html?render_html=true">
+<iconify-icon class="text-[16px]" icon="ph:funnel"></iconify-icon>
+</a>
+</div>
+</header>
+<main class="flex-1 min-h-0 overflow-y-auto overflow-x-hidden scroll-area px-5 pb-8" style="scrollbar-width:none;-ms-overflow-style:none;">
+<!-- 分类概览卡 -->
+<section class="rounded-[24px] bg-white border border-[#ECEFED] overflow-hidden">
+<div class="px-5 pt-5 pb-4 relative">
+<div class="absolute right-0 top-0 w-28 h-28 rounded-full bg-[#FFF4E8] -z-0"></div>
+<div class="relative flex items-start gap-3">
+<div class="w-12 h-12 rounded-[16px] bg-[#FFF1E4] flex items-center justify-center text-[22px]">🍚</div>
+<div class="flex-1">
+<div class="flex items-center gap-1.5">
+<h1 class="text-[17px] font-semibold">餐饮</h1>
+<span class="text-[10px] text-[#8A968F] bg-[#F4F7F5] rounded-full px-2 py-0.5">支出分类</span>
+</div>
+<p class="text-[10.5px] text-[#8A968F] mt-1">2026 年 10 月 · 共 14 笔</p>
+</div>
+</div>
+<div class="relative mt-4 grid grid-cols-3 gap-2">
+<div>
+<p class="text-[10px] text-[#8A968F]">分类合计</p>
+<p class="num text-[18px] font-semibold mt-1">¥1,286.40</p>
+</div>
+<div>
+<p class="text-[10px] text-[#8A968F]">支出占比</p>
+<p class="num text-[18px] font-semibold mt-1 text-[#E9A23B]">30.0%</p>
+</div>
+<div>
+<p class="text-[10px] text-[#8A968F]">单笔均值</p>
+<p class="num text-[18px] font-semibold mt-1">¥91.89</p>
+</div>
+</div>
+</div>
+<div class="px-5 pb-4">
+<div class="rank-track h-2 rounded-full overflow-hidden">
+<div class="h-full rounded-full bg-[#E9A23B]" style="width:30%"></div>
+</div>
+<div class="flex items-center justify-between mt-2 text-[10px] text-[#8A968F]">
+<span>占本月总支出 ¥4,286.40 的 30.0%</span>
+<span class="text-[#1F8A5C]">排名第 1 / 12</span>
+</div>
+</div>
+<div class="bg-[#FFFBF3] px-5 py-2.5 flex items-center gap-1.5 border-t border-[#FBF1DF]">
+<iconify-icon class="text-[13px] text-[#C98A2B]" icon="ph:trend-up"></iconify-icon>
+<p class="text-[10.5px] text-[#9A6B22]">比上月多花 ¥86.00（+7.2%），外卖订单增加 3 笔</p>
+</div>
+</section>
+<!-- 分类内小统计 -->
+<div class="mt-3 grid grid-cols-2 gap-2">
+<div class="card px-3.5 py-3">
+<p class="text-[10px] text-[#8A968F]">最大单笔</p>
+<p class="num text-[13.5px] font-semibold mt-1">¥168.00</p>
+<p class="text-[10px] text-[#8A968F] mt-0.5">10/18 · 朋友聚餐</p>
+</div>
+<div class="card px-3.5 py-3">
+<p class="text-[10px] text-[#8A968F]">工作日 / 周末</p>
+<p class="num text-[13.5px] font-semibold mt-1">¥842 / ¥444</p>
+<p class="text-[10px] text-[#8A968F] mt-0.5">周末日均更高</p>
+</div>
+</div>
+<!-- 排序切换 -->
+<div class="flex items-center justify-between mt-4 mb-2 px-1">
+<h2 class="text-[14px] font-semibold">10 月流水</h2>
+<div class="flex items-center gap-1 p-0.5 rounded-full bg-white border border-[#ECEFED]">
+<button class="px-2.5 py-1 rounded-full text-[11px] bg-[#1F8A5C] text-white" id="sortDate" onclick="switchSort('date')" type="button">按日期</button>
+<button class="px-2.5 py-1 rounded-full text-[11px] text-[#4B5A53]" id="sortAmount" onclick="switchSort('amount')" type="button">按金额</button>
+</div>
+</div>
+<div class="card overflow-hidden">
+<a class="row-item flex items-center gap-3 px-4 py-3.5 active:bg-[#FAFCFB]" data-amount="168" href="https://modao.cc/agent-py/workspace/6addbaacde2fb8a03b1662d7/expense-tracker.html/detail.html?render_html=true">
+<div class="w-9 h-9 rounded-[12px] bg-[#FFF1E4] flex items-center justify-center text-[16px]">🍲</div>
+<div class="flex-1 min-w-0">
+<p class="text-[13.5px] font-medium truncate">朋友聚餐 · 火锅</p>
+<p class="text-[10.5px] text-[#8A968F] mt-0.5">10月18日 周日 19:20</p>
+</div>
+<p class="num text-[14px] font-semibold">-¥168.00</p>
+</a>
+<div class="h-px bg-[#F2F5F3] ml-[60px]"></div>
+<a class="row-item flex items-center gap-3 px-4 py-3.5 active:bg-[#FAFCFB]" data-amount="128" href="https://modao.cc/agent-py/workspace/6addbaacde2fb8a03b1662d7/expense-tracker.html/detail.html?render_html=true">
+<div class="w-9 h-9 rounded-[12px] bg-[#FFF1E4] flex items-center justify-center text-[16px]">🍱</div>
+<div class="flex-1 min-w-0">
+<p class="text-[13.5px] font-medium truncate">部门团建 · 日料</p>
+<p class="text-[10.5px] text-[#8A968F] mt-0.5">10月11日 周六 18:40</p>
+</div>
+<p class="num text-[14px] font-semibold">-¥128.00</p>
+</a>
+<div class="h-px bg-[#F2F5F3] ml-[60px]"></div>
+<a class="row-item flex items-center gap-3 px-4 py-3.5 active:bg-[#FAFCFB]" data-amount="96" href="https://modao.cc/agent-py/workspace/6addbaacde2fb8a03b1662d7/expense-tracker.html/detail.html?render_html=true">
+<div class="w-9 h-9 rounded-[12px] bg-[#FFF1E4] flex items-center justify-center text-[16px]">🍜</div>
+<div class="flex-1 min-w-0">
+<p class="text-[13.5px] font-medium truncate">周六午餐 · 牛肉面</p>
+<p class="text-[10.5px] text-[#8A968F] mt-0.5">10月18日 周日 12:15</p>
+</div>
+<p class="num text-[14px] font-semibold">-¥96.00</p>
+</a>
+<div class="h-px bg-[#F2F5F3] ml-[60px]"></div>
+<a class="row-item flex items-center gap-3 px-4 py-3.5 active:bg-[#FAFCFB]" data-amount="88" href="https://modao.cc/agent-py/workspace/6addbaacde2fb8a03b1662d7/expense-tracker.html/detail.html?render_html=true">
+<div class="w-9 h-9 rounded-[12px] bg-[#FFF1E4] flex items-center justify-center text-[16px]">🍚</div>
+<div class="flex-1 min-w-0">
+<p class="text-[13.5px] font-medium truncate">加班晚餐 · 煲仔饭</p>
+<p class="text-[10.5px] text-[#8A968F] mt-0.5">10月14日 周二 20:10</p>
+</div>
+<p class="num text-[14px] font-semibold">-¥88.00</p>
+</a>
+<div class="h-px bg-[#F2F5F3] ml-[60px]"></div>
+<a class="row-item flex items-center gap-3 px-4 py-3.5 active:bg-[#FAFCFB]" data-amount="64" href="https://modao.cc/agent-py/workspace/6addbaacde2fb8a03b1662d7/expense-tracker.html/detail.html?render_html=true">
+<div class="w-9 h-9 rounded-[12px] bg-[#FFF1E4] flex items-center justify-center text-[16px]">🍚</div>
+<div class="flex-1 min-w-0">
+<p class="text-[13.5px] font-medium truncate">公司楼下的牛腩饭</p>
+<p class="text-[10.5px] text-[#8A968F] mt-0.5">10月24日 周五 12:20</p>
+</div>
+<p class="num text-[14px] font-semibold">-¥38.00</p>
+</a>
+<div class="h-px bg-[#F2F5F3] ml-[60px]"></div>
+<a class="row-item flex items-center gap-3 px-4 py-3.5 active:bg-[#FAFCFB]" data-amount="36" href="https://modao.cc/agent-py/workspace/6addbaacde2fb8a03b1662d7/expense-tracker.html/detail.html?render_html=true">
+<div class="w-9 h-9 rounded-[12px] bg-[#FFF1E4] flex items-center justify-center text-[16px]">🥗</div>
+<div class="flex-1 min-w-0">
+<p class="text-[13.5px] font-medium truncate">周末轻食沙拉</p>
+<p class="text-[10.5px] text-[#8A968F] mt-0.5">10月12日 周日 12:30</p>
+</div>
+<p class="num text-[14px] font-semibold">-¥36.00</p>
+</a>
+<div class="h-px bg-[#F2F5F3] ml-[60px]"></div>
+<a class="row-item flex items-center gap-3 px-4 py-3.5 active:bg-[#FAFCFB]" data-amount="32" href="https://modao.cc/agent-py/workspace/6addbaacde2fb8a03b1662d7/expense-tracker.html/detail.html?render_html=true">
+<div class="w-9 h-9 rounded-[12px] bg-[#FFF1E4] flex items-center justify-center text-[16px]">🍚</div>
+<div class="flex-1 min-w-0">
+<p class="text-[13.5px] font-medium truncate">晚饭 · 番茄鸡蛋面</p>
+<p class="text-[10.5px] text-[#8A968F] mt-0.5">10月21日 周二 19:00</p>
+</div>
+<p class="num text-[14px] font-semibold">-¥32.00</p>
+</a>
+<div class="h-px bg-[#F2F5F3] ml-[60px]"></div>
+<a class="row-item flex items-center gap-3 px-4 py-3.5 active:bg-[#FAFCFB]" data-amount="28" href="https://modao.cc/agent-py/workspace/6addbaacde2fb8a03b1662d7/expense-tracker.html/detail.html?render_html=true">
+<div class="w-9 h-9 rounded-[12px] bg-[#FFF1E4] flex items-center justify-center text-[16px]">🍚</div>
+<div class="flex-1 min-w-0">
+<p class="text-[13.5px] font-medium truncate">午饭 · 黄焖鸡米饭</p>
+<p class="text-[10.5px] text-[#8A968F] mt-0.5">10月9日 周五 12:05</p>
+</div>
+<p class="num text-[14px] font-semibold">-¥28.00</p>
+</a>
+<div class="h-px bg-[#F2F5F3] ml-[60px]"></div>
+<a class="row-item flex items-center gap-3 px-4 py-3.5 active:bg-[#FAFCFB]" data-amount="24" href="https://modao.cc/agent-py/workspace/6addbaacde2fb8a03b1662d7/expense-tracker.html/detail.html?render_html=true">
+<div class="w-9 h-9 rounded-[12px] bg-[#FFF1E4] flex items-center justify-center text-[16px]">🍞</div>
+<div class="flex-1 min-w-0">
+<p class="text-[13.5px] font-medium truncate">早餐 · 面包牛奶</p>
+<p class="text-[10.5px] text-[#8A968F] mt-0.5">10月8日 周四 07:40</p>
+</div>
+<p class="num text-[14px] font-semibold">-¥24.00</p>
+</a>
+</div>
+<div class="mt-3 rounded-[16px] bg-white border border-dashed border-[#DCE4DF] px-4 py-3 flex items-center gap-2">
+<iconify-icon class="text-[15px] text-[#8A968F]" icon="ph:dots-three"></iconify-icon>
+<p class="text-[10.5px] text-[#8A968F]">已展示 14 笔中的 10 笔，上滑加载更多</p>
+</div>
+<a class="mt-4 flex items-center justify-center gap-1.5 text-[12px] text-[#1F8A5C] py-2" href="https://modao.cc/agent-py/workspace/6addbaacde2fb8a03b1662d7/expense-tracker.html/statistics.html?render_html=true">
+<iconify-icon class="text-[14px]" icon="ph:chart-donut"></iconify-icon>
+        返回月度统计查看全部分类
+      </a>
+</main>
+</div>
+<script>
+    function switchSort(mode) {
+      const dateBtn = document.getElementById('sortDate');
+      const amountBtn = document.getElementById('sortAmount');
+      const active = 'px-2.5 py-1 rounded-full text-[11px] bg-[#1F8A5C] text-white';
+      const idle = 'px-2.5 py-1 rounded-full text-[11px] text-[#4B5A53]';
+      dateBtn.className = mode === 'date' ? active : idle;
+      amountBtn.className = mode === 'amount' ? active : idle;
+
+      const card = document.querySelector('.row-item').parentElement;
+      const rows = Array.from(card.querySelectorAll('.row-item'));
+      rows.sort(function (a, b) {
+        if (mode === 'amount') {
+          return Number(b.dataset.amount) - Number(a.dataset.amount);
+        }
+        return a.querySelector('p').textContent.localeCompare(b.querySelector('p').textContent);
+      });
+      const fragment = document.createDocumentFragment();
+      rows.forEach(function (row, index) {
+        fragment.appendChild(row);
+        if (index < rows.length - 1) {
+          const line = document.createElement('div');
+          line.className = 'h-px bg-[#F2F5F3] ml-[60px] divider';
+          fragment.appendChild(line);
+        }
+      });
+      card.appendChild(fragment);
+    }
+  </script>
+</body>
+</html>

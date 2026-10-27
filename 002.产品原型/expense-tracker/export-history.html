@@ -1,0 +1,102 @@
+<!DOCTYPE html>
+
+<html class="w-full h-full overflow-hidden" lang="zh-CN">
+<head>
+<meta charset="utf-8"/>
+<meta content="width=device-width, initial-scale=1.0" name="viewport"/>
+<title>导出记录 · 小账本</title>
+<script src="https://modao.cc/agent-py/static/source/js/tailwindcss.js"></script>
+<script src="https://modao.cc/agent-py/static/source/js/iconify-icon.min.js"></script>
+<style>
+  * { -webkit-tap-highlight-color: transparent; }
+  body { font-family:-apple-system,BlinkMacSystemFont,"PingFang SC","Hiragino Sans GB","Microsoft YaHei",sans-serif; color:#17241F; }
+  .num { font-variant-numeric: tabular-nums; letter-spacing:-0.02em; }
+  .scroll-area { scrollbar-width:none; -ms-overflow-style:none; }
+  .scroll-area::-webkit-scrollbar { display:none; width:0; height:0; }
+</style>
+</head>
+<body class="w-full h-full m-0 overflow-hidden flex items-center justify-center bg-[#E8EDE9]">
+<div class="w-full h-full max-w-[393px] max-h-[852px] bg-[#F4F7F5] flex flex-col overflow-hidden relative">
+<header class="shrink-0 px-5 pt-4 pb-3">
+<div class="flex items-center justify-between">
+<a aria-label="返回导出" class="w-9 h-9 rounded-full bg-white border border-[#ECEFED] flex items-center justify-center text-[#4B5A53]" href="https://modao.cc/agent-py/workspace/6addbaacde2fb8a03b1662d7/expense-tracker.html/export.html?render_html=true">
+<iconify-icon class="text-[16px]" icon="ph:caret-left"></iconify-icon>
+</a>
+<p class="text-[14px] font-semibold">导出记录</p>
+<button class="text-[11px] text-[#8A968F]" onclick="clearHistory()" type="button">清空</button>
+</div>
+</header>
+<main class="flex-1 min-h-0 overflow-y-auto overflow-x-hidden scroll-area px-5 pb-8" style="scrollbar-width:none;-ms-overflow-style:none;">
+<section class="rounded-[22px] bg-white border border-[#ECEFED] px-4 py-4 flex items-center gap-3">
+<div class="w-10 h-10 rounded-[13px] bg-[#E7F4EC] flex items-center justify-center">
+<iconify-icon class="text-[19px] text-[#1F8A5C]" icon="ph:files"></iconify-icon>
+</div>
+<div class="flex-1">
+<p class="text-[13px] font-medium">共导出 4 次</p>
+<p class="text-[10.5px] text-[#8A968F] mt-0.5">最近一次：2026-10-24 22:10 · 36 笔</p>
+</div>
+<a class="text-[10.5px] text-[#1F8A5C] border border-[#DCEBE3] rounded-full px-2.5 py-1" href="https://modao.cc/agent-py/workspace/6addbaacde2fb8a03b1662d7/expense-tracker.html/export.html?render_html=true">新建导出</a>
+</section>
+<h2 class="text-[12px] font-semibold px-1 mt-4 mb-2">历史文件</h2>
+<div class="bg-white border border-[#ECEFED] rounded-[20px] overflow-hidden" id="historyList"></div>
+<div class="mt-3 rounded-[16px] bg-[#F4F7F5] px-4 py-3 flex items-start gap-2">
+<iconify-icon class="text-[13px] text-[#8A968F] mt-0.5 shrink-0" icon="ph:info"></iconify-icon>
+<p class="text-[10px] text-[#8A968F] leading-relaxed">导出的文件只保存在本机，记录中不包含文件内容。删除记录不会删除已分享出去的文件。</p>
+</div>
+</main>
+<div class="shrink-0 px-5 py-3 bg-white border-t border-[#ECEFED]">
+<a class="block w-full py-3 rounded-[14px] bg-[#1F8A5C] text-white text-[13px] font-medium text-center active:bg-[#146B46]" href="https://modao.cc/agent-py/workspace/6addbaacde2fb8a03b1662d7/expense-tracker.html/export.html?render_html=true">导出新的 CSV 文件</a>
+</div>
+<div class="hidden absolute left-1/2 -translate-x-1/2 bottom-[92px] z-50 bg-[#17241F] text-white text-[12px] px-4 py-2.5 rounded-full shadow-lg" id="toast"></div>
+</div>
+<script>
+    let history = [
+      { name: '小账本_2026-10-01_2026-10-24.csv', range: '本月 · 36 笔', time: '10月24日 22:10', size: '18 KB' },
+      { name: '小账本_2026-09-01_2026-09-30.csv', range: '上月 · 48 笔', time: '10月01日 09:12', size: '24 KB' },
+      { name: '小账本_2026-08-01_2026-10-24.csv', range: '近 3 个月 · 121 笔', time: '10月01日 09:10', size: '61 KB' },
+      { name: '小账本_all_2026-10-24.csv', range: '全部数据 · 1,286 笔', time: '09月18日 20:45', size: '428 KB' }
+    ];
+
+    function renderHistory() {
+      const list = document.getElementById('historyList');
+      if (history.length === 0) {
+        list.innerHTML = '<div class="py-12 flex flex-col items-center">' +
+          '<div class="w-14 h-14 rounded-full bg-[#F4F7F5] flex items-center justify-center text-[22px]">🗂️</div>' +
+          '<p class="text-[12px] text-[#4B5A53] mt-2.5">还没有导出记录</p>' +
+          '<p class="text-[10.5px] text-[#8A968F] mt-1">导出后文件会显示在这里</p></div>';
+        return;
+      }
+      list.innerHTML = history.map(function (item, index) {
+        return '<div class="flex items-center gap-3 px-4 py-3.5' + (index < history.length - 1 ? ' border-b border-[#F2F5F3]' : '') + '">' +
+          '<div class="w-9 h-9 rounded-[11px] bg-[#E7F4EC] flex items-center justify-center shrink-0">' +
+          '<iconify-icon icon="ph:file-csv" class="text-[16px] text-[#1F8A5C]"></iconify-icon></div>' +
+          '<div class="flex-1 min-w-0">' +
+          '<p class="text-[11.5px] font-medium truncate num">' + item.name + '</p>' +
+          '<p class="text-[10px] text-[#8A968F] mt-0.5">' + item.range + ' · ' + item.size + ' · ' + item.time + '</p></div>' +
+          '<button type="button" onclick="resend(' + index + ')" class="text-[10.5px] text-[#1F8A5C] border border-[#DCEBE3] rounded-full px-2.5 py-1 shrink-0">再次分享</button>' +
+          '</div>';
+      }).join('');
+    }
+
+    function resend(index) {
+      showToast('已重新生成「' + history[index].name + '」');
+    }
+
+    function clearHistory() {
+      history = [];
+      renderHistory();
+      showToast('导出记录已清空');
+    }
+
+    function showToast(msg) {
+      const toast = document.getElementById('toast');
+      toast.textContent = msg;
+      toast.classList.remove('hidden');
+      clearTimeout(window.__toastTimer);
+      window.__toastTimer = setTimeout(function () { toast.classList.add('hidden'); }, 2000);
+    }
+
+    renderHistory();
+  </script>
+</body>
+</html>

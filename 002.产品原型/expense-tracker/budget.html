@@ -1,0 +1,308 @@
+<!DOCTYPE html>
+
+<html class="w-full h-full overflow-hidden" lang="zh-CN">
+<head>
+<meta charset="utf-8"/>
+<meta content="width=device-width, initial-scale=1.0" name="viewport"/>
+<title>预算 · 小账本</title>
+<script src="https://modao.cc/agent-py/static/source/js/tailwindcss.js"></script>
+<script src="https://modao.cc/agent-py/static/source/js/iconify-icon.min.js"></script>
+<style>
+  * { -webkit-tap-highlight-color: transparent; }
+  body { font-family:-apple-system,BlinkMacSystemFont,"PingFang SC","Hiragino Sans GB","Microsoft YaHei",sans-serif; color:#17241F; }
+  .num { font-variant-numeric: tabular-nums; letter-spacing:-0.02em; }
+  .scroll-area { scrollbar-width:none; -ms-overflow-style:none; }
+  .scroll-area::-webkit-scrollbar { display:none; width:0; height:0; }
+  .card { background:#fff; border:1px solid #ECEFED; border-radius:20px; }
+  .gauge-ring { transform: rotate(-90deg); transform-origin: 50% 50%; transition: stroke-dashoffset .6s ease, stroke .3s ease; }
+</style>
+</head>
+<body class="w-full h-full m-0 overflow-hidden flex items-center justify-center bg-[#E8EDE9]">
+<div class="w-full h-full max-w-[393px] max-h-[852px] bg-[#F4F7F5] flex flex-col overflow-hidden relative">
+<header class="shrink-0 px-5 pt-4 pb-3">
+<div class="flex items-center justify-between">
+<a aria-label="返回设置" class="w-9 h-9 rounded-full bg-white border border-[#ECEFED] flex items-center justify-center text-[#4B5A53]" href="https://modao.cc/agent-py/workspace/6addbaacde2fb8a03b1662d7/expense-tracker.html/settings.html?render_html=true">
+<iconify-icon class="text-[16px]" icon="ph:caret-left"></iconify-icon>
+</a>
+<p class="text-[14px] font-semibold">月度预算</p>
+<button aria-label="编辑预算" class="w-9 h-9 rounded-full bg-white border border-[#ECEFED] flex items-center justify-center text-[#4B5A53]" onclick="openBudgetSheet()" type="button">
+<iconify-icon class="text-[16px]" icon="ph:pencil-simple"></iconify-icon>
+</button>
+</div>
+</header>
+<main class="flex-1 min-h-0 overflow-y-auto overflow-x-hidden scroll-area px-5 pb-8" style="scrollbar-width:none;-ms-overflow-style:none;">
+<!-- 预算环形进度卡 -->
+<section class="rounded-[24px] bg-white border border-[#ECEFED] px-5 pt-5 pb-4">
+<div class="flex items-center justify-between">
+<div>
+<p class="text-[11px] text-[#8A968F]">2026 年 10 月总预算</p>
+<p class="num text-[26px] font-semibold mt-1" id="budgetTotal">¥6,500.00</p>
+</div>
+<span class="text-[10.5px] font-medium rounded-full px-2.5 py-1 bg-[#E7F4EC] text-[#1F8A5C] flex items-center gap-1" id="statusPill">
+<iconify-icon class="text-[11px]" icon="ph:leaf"></iconify-icon>花得很稳
+          </span>
+</div>
+<div class="flex items-center gap-4 mt-4">
+<div class="relative w-[124px] h-[124px] shrink-0">
+<svg class="w-full h-full" viewbox="0 0 120 120">
+<circle cx="60" cy="60" fill="none" r="50" stroke="#F2F5F3" stroke-width="11"></circle>
+<circle class="gauge-ring" cx="60" cy="60" fill="none" id="gauge" r="50" stroke="#1F8A5C" stroke-dasharray="314.16" stroke-dashoffset="135.1" stroke-linecap="round" stroke-width="11"></circle>
+</svg>
+<div class="absolute inset-0 flex flex-col items-center justify-center">
+<p class="text-[10px] text-[#8A968F]">已使用</p>
+<p class="num text-[22px] font-semibold leading-none mt-1" id="percentText">57%</p>
+<p class="text-[9.5px] text-[#8A968F] mt-1">¥4,286.40</p>
+</div>
+</div>
+<div class="flex-1 space-y-2.5">
+<div class="flex items-center justify-between text-[11.5px]">
+<span class="text-[#8A968F] flex items-center gap-1.5"><span class="w-2 h-2 rounded-full bg-[#1F8A5C]"></span>剩余可用</span>
+<span class="num font-semibold" id="remainText">¥2,213.60</span>
+</div>
+<div class="flex items-center justify-between text-[11.5px]">
+<span class="text-[#8A968F] flex items-center gap-1.5"><span class="w-2 h-2 rounded-full bg-[#E9A23B]"></span>还需消费天数</span>
+<span class="num font-semibold">6 天</span>
+</div>
+<div class="flex items-center justify-between text-[11.5px]">
+<span class="text-[#8A968F] flex items-center gap-1.5"><span class="w-2 h-2 rounded-full bg-[#C9D6CF]"></span>日均可用</span>
+<span class="num font-semibold">¥368.93</span>
+</div>
+</div>
+</div>
+<div class="mt-4 rounded-[14px] bg-[#F4F7F5] px-3.5 py-2.5">
+<p class="text-[10.5px] text-[#4B5A53] leading-relaxed" id="adviceText">按当前节奏，本月预计结余 ¥2,213.60，达成预算目标。建议继续保持日均 ¥180 左右的支出。</p>
+</div>
+</section>
+<!-- 状态图例 -->
+<section class="mt-3 card px-4 py-3.5">
+<p class="text-[11.5px] font-medium mb-2">预算健康度</p>
+<div class="grid grid-cols-3 gap-1.5">
+<div class="rounded-[11px] px-2 py-2 bg-[#E7F4EC]">
+<p class="text-[10px] text-[#1F8A5C] font-medium">＜70%</p>
+<p class="text-[9.5px] text-[#4B7C65] mt-0.5">节奏健康</p>
+</div>
+<div class="rounded-[11px] px-2 py-2 bg-[#FDF3E3]">
+<p class="text-[10px] text-[#C98A2B] font-medium">70%-90%</p>
+<p class="text-[9.5px] text-[#9A6B22] mt-0.5">注意控制</p>
+</div>
+<div class="rounded-[11px] px-2 py-2 bg-[#FDECEA]">
+<p class="text-[10px] text-[#C25542] font-medium">＞90%</p>
+<p class="text-[9.5px] text-[#9A4A3C] mt-0.5">接近超支</p>
+</div>
+</div>
+<input aria-label="模拟预算使用比例" class="w-full mt-3 accent-[#1F8A5C]" id="simRange" max="120" min="0" type="range" value="57"/>
+<p class="text-[10px] text-[#9AA69F] flex items-center justify-between">
+<span>拖动可预览不同使用比例下的状态</span>
+<span class="num font-medium text-[#4B5A53]" id="simValue">57%</span>
+</p>
+</section>
+<!-- 分类预算明细 -->
+<div class="flex items-center justify-between px-1 mt-4 mb-2">
+<h2 class="text-[14px] font-semibold">分类预算</h2>
+<button class="text-[11px] text-[#1F8A5C] flex items-center gap-0.5" type="button">
+<iconify-icon class="text-[11px]" icon="ph:plus"></iconify-icon>添加
+        </button>
+</div>
+<div class="card px-4 py-1">
+<div class="py-3 border-b border-[#F2F5F3]">
+<div class="flex items-center justify-between">
+<div class="flex items-center gap-2">
+<span class="text-[14px]">🍚</span><span class="text-[12.5px]">餐饮</span>
+</div>
+<p class="num text-[11.5px] text-[#8A968F]"><span class="text-[#17241F] font-medium">¥1,286.40</span> / ¥1,500</p>
+</div>
+<div class="h-1.5 rounded-full bg-[#F2F5F3] mt-2 overflow-hidden">
+<div class="h-full rounded-full bg-[#E9A23B]" style="width:85.8%"></div>
+</div>
+</div>
+<div class="py-3 border-b border-[#F2F5F3]">
+<div class="flex items-center justify-between">
+<div class="flex items-center gap-2">
+<span class="text-[14px]">🛍️</span><span class="text-[12.5px]">购物</span>
+</div>
+<p class="num text-[11.5px] text-[#8A968F]"><span class="text-[#17241F] font-medium">¥842.00</span> / ¥1,200</p>
+</div>
+<div class="h-1.5 rounded-full bg-[#F2F5F3] mt-2 overflow-hidden">
+<div class="h-full rounded-full bg-[#1F8A5C]" style="width:70.2%"></div>
+</div>
+</div>
+<div class="py-3 border-b border-[#F2F5F3]">
+<div class="flex items-center justify-between">
+<div class="flex items-center gap-2">
+<span class="text-[14px]">🏠</span><span class="text-[12.5px]">居住</span>
+</div>
+<p class="num text-[11.5px] text-[#8A968F]"><span class="text-[#17241F] font-medium">¥728.80</span> / ¥800</p>
+</div>
+<div class="h-1.5 rounded-full bg-[#F2F5F3] mt-2 overflow-hidden">
+<div class="h-full rounded-full bg-[#E9A23B]" style="width:91.1%"></div>
+</div>
+</div>
+<div class="py-3">
+<div class="flex items-center justify-between">
+<div class="flex items-center gap-2">
+<span class="text-[14px]">🎮</span><span class="text-[12.5px]">娱乐</span>
+</div>
+<p class="num text-[11.5px] text-[#8A968F]"><span class="text-[#17241F] font-medium">¥496.00</span> / ¥600</p>
+</div>
+<div class="h-1.5 rounded-full bg-[#F2F5F3] mt-2 overflow-hidden">
+<div class="h-full rounded-full bg-[#E9A23B]" style="width:82.7%"></div>
+</div>
+</div>
+</div>
+<!-- 预算提醒 -->
+<section class="mt-3 card px-4 py-3.5">
+<div class="flex items-center justify-between">
+<div class="flex items-center gap-2">
+<iconify-icon class="text-[16px] text-[#1F8A5C]" icon="ph:bell-ringing"></iconify-icon>
+<div>
+<p class="text-[12px] font-medium">超支预警提醒</p>
+<p class="text-[10px] text-[#8A968F] mt-0.5">预算使用达 80% 时发送通知</p>
+</div>
+</div>
+<button aria-label="开关超支预警" class="w-11 h-6 rounded-full bg-[#1F8A5C] relative transition" id="alertToggle" onclick="toggleAlert()" type="button">
+<span class="absolute top-0.5 left-[22px] w-5 h-5 rounded-full bg-white shadow transition-all" id="alertKnob"></span>
+</button>
+</div>
+</section>
+<a class="mt-4 flex items-center justify-center gap-1.5 text-[12px] text-[#1F8A5C] py-2" href="https://modao.cc/agent-py/workspace/6addbaacde2fb8a03b1662d7/expense-tracker.html/statistics.html?render_html=true">
+<iconify-icon class="text-[14px]" icon="ph:chart-donut"></iconify-icon>
+        查看本月消费统计
+      </a>
+</main>
+<!-- 预算编辑弹层 -->
+<div class="hidden absolute inset-0 z-30 bg-[rgba(23,36,31,0.42)]" id="budgetBackdrop" onclick="closeBudgetSheet()"></div>
+<section class="hidden absolute inset-x-0 bottom-0 z-40 bg-white rounded-t-[24px] px-5 pt-3 pb-5" id="budgetSheet">
+<div class="w-9 h-1 rounded-full bg-[#E2E8E4] mx-auto mb-4"></div>
+<div class="flex items-center justify-between">
+<h2 class="text-[15px] font-semibold">设置月度总预算</h2>
+<button class="w-8 h-8 rounded-full bg-[#F4F7F5] flex items-center justify-center text-[#4B5A53]" onclick="closeBudgetSheet()" type="button">
+<iconify-icon class="text-[15px]" icon="ph:x"></iconify-icon>
+</button>
+</div>
+<p class="text-[11px] text-[#8A968F] mt-1">建议参考近 3 个月平均支出 ¥4,180 制定</p>
+<div class="mt-4 rounded-[14px] bg-[#F4F7F5] px-4 py-3 flex items-center gap-1.5">
+<span class="text-[18px] text-[#4B5A53]">¥</span>
+<input aria-label="月度预算金额" class="num bg-transparent outline-none text-[26px] font-semibold w-full" id="budgetInput" min="0" step="100" type="number" value="6500"/>
+</div>
+<div class="flex gap-2 mt-2">
+<button class="flex-1 py-2 rounded-[10px] bg-[#F4F7F5] text-[11px] text-[#4B5A53]" onclick="setQuick(5000)" type="button">¥5,000</button>
+<button class="flex-1 py-2 rounded-[10px] bg-[#F4F7F5] text-[11px] text-[#4B5A53]" onclick="setQuick(6500)" type="button">¥6,500</button>
+<button class="flex-1 py-2 rounded-[10px] bg-[#F4F7F5] text-[11px] text-[#4B5A53]" onclick="setQuick(8000)" type="button">¥8,000</button>
+</div>
+<div class="flex items-center justify-between mt-4 px-1">
+<span class="text-[11.5px] text-[#4B5A53]">新预算下已用比例</span>
+<span class="num text-[11.5px] font-semibold text-[#1F8A5C]" id="sheetPercent">65.9%</span>
+</div>
+<button class="w-full mt-4 py-3 rounded-[14px] bg-[#1F8A5C] text-white text-[13px] font-medium active:bg-[#146B46]" onclick="applyBudget()" type="button">保存预算</button>
+</section>
+</div>
+<script>
+    const SPENT = 4286.40;
+    let budget = 6500;
+
+    function renderBudget(percent) {
+      const p = Math.max(0, Math.min(120, percent));
+      const gauge = document.getElementById('gauge');
+      const circumference = 314.16;
+      const offset = circumference - (Math.min(p, 100) / 100) * circumference;
+      gauge.style.strokeDashoffset = offset;
+      document.getElementById('percentText').textContent = Math.round(p) + '%';
+
+      let color = '#1F8A5C';
+      let pillBg = 'bg-[#E7F4EC]';
+      let pillText = 'text-[#1F8A5C]';
+      let label = '花得很稳';
+      let icon = 'ph:leaf';
+      let advice = '按当前节奏，本月预计结余 ¥2,213.60，达成预算目标。建议继续保持日均 ¥180 左右的支出。';
+      if (p > 90) {
+        color = '#E8654F';
+        pillBg = 'bg-[#FDECEA]';
+        pillText = 'text-[#C25542]';
+        label = '接近超支';
+        icon = 'ph:warning-circle';
+        advice = '已使用超过 90% 预算，本月仅剩少量额度，建议暂停非必要消费。';
+      } else if (p >= 70) {
+        color = '#E9A23B';
+        pillBg = 'bg-[#FDF3E3]';
+        pillText = 'text-[#C98A2B]';
+        label = '注意控制';
+        icon = 'ph:warning';
+        advice = '预算使用已超过 70%，建议控制餐饮与购物支出，优先完成固定账单。';
+      }
+      gauge.setAttribute('stroke', color);
+      const pill = document.getElementById('statusPill');
+      pill.className = 'text-[10.5px] font-medium rounded-full px-2.5 py-1 flex items-center gap-1 ' + pillBg + ' ' + pillText;
+      pill.innerHTML = '<iconify-icon icon="' + icon + '" class="text-[11px]"></iconify-icon>' + label;
+      document.getElementById('percentText').style.color = color === '#1F8A5C' ? '#17241F' : color;
+      document.getElementById('adviceText').textContent = advice;
+
+      const remain = budget - SPENT;
+      document.getElementById('remainText').textContent = remain >= 0
+        ? '¥' + remain.toLocaleString('zh-CN', { minimumFractionDigits: 2, maximumFractionDigits: 2 })
+        : '-¥' + Math.abs(remain).toLocaleString('zh-CN', { minimumFractionDigits: 2, maximumFractionDigits: 2 });
+    }
+
+    const sim = document.getElementById('simRange');
+    sim.addEventListener('input', function () {
+      const p = Number(sim.value);
+      document.getElementById('simValue').textContent = p + '%';
+      renderBudget(p);
+    });
+
+    let alertOn = true;
+    function toggleAlert() {
+      alertOn = !alertOn;
+      const track = document.getElementById('alertToggle');
+      const knob = document.getElementById('alertKnob');
+      track.className = 'w-11 h-6 rounded-full relative transition ' + (alertOn ? 'bg-[#1F8A5C]' : 'bg-[#D8E0DB]');
+      knob.className = 'absolute top-0.5 w-5 h-5 rounded-full bg-white shadow transition-all ' + (alertOn ? 'left-[22px]' : 'left-0.5');
+    }
+
+    function openBudgetSheet() {
+      document.getElementById('budgetBackdrop').classList.remove('hidden');
+      document.getElementById('budgetSheet').classList.remove('hidden');
+      document.getElementById('budgetInput').value = budget;
+      updateSheetPercent();
+    }
+
+    function closeBudgetSheet() {
+      document.getElementById('budgetBackdrop').classList.add('hidden');
+      document.getElementById('budgetSheet').classList.add('hidden');
+    }
+
+    function setQuick(value) {
+      document.getElementById('budgetInput').value = value;
+      updateSheetPercent();
+    }
+
+    function updateSheetPercent() {
+      const value = Number(document.getElementById('budgetInput').value || 0);
+      const pct = value > 0 ? (SPENT / value) * 100 : 0;
+      document.getElementById('sheetPercent').textContent = pct.toFixed(1) + '%';
+      document.getElementById('sheetPercent').className = 'num text-[11.5px] font-semibold ' + (pct > 90 ? 'text-[#E8654F]' : pct >= 70 ? 'text-[#E9A23B]' : 'text-[#1F8A5C]');
+    }
+
+    document.getElementById('budgetInput').addEventListener('input', updateSheetPercent);
+
+    function applyBudget() {
+      const value = Number(document.getElementById('budgetInput').value || 0);
+      if (!(value > 0)) return;
+      budget = value;
+      document.getElementById('budgetTotal').textContent = '¥' + value.toLocaleString('zh-CN', { minimumFractionDigits: 2, maximumFractionDigits: 2 });
+      sim.value = Math.min(120, Math.round((SPENT / value) * 100));
+      document.getElementById('simValue').textContent = sim.value + '%';
+      renderBudget(Number(sim.value));
+      closeBudgetSheet();
+    }
+
+    function resetSimToReal() {
+      sim.value = Math.min(120, Math.round((SPENT / budget) * 100));
+      document.getElementById('simValue').textContent = sim.value + '%';
+      renderBudget(Number(sim.value));
+    }
+
+    renderBudget(57);
+    resetSimToReal();
+  </script>
+</body>
+</html>

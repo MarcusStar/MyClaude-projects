@@ -1,0 +1,193 @@
+<!DOCTYPE html>
+
+<html class="w-full h-full overflow-hidden" lang="zh-CN">
+<head>
+<meta charset="utf-8"/>
+<meta content="width=device-width, initial-scale=1.0" name="viewport"/>
+<title>记账提醒 · 小账本</title>
+<script src="https://modao.cc/agent-py/static/source/js/tailwindcss.js"></script>
+<script src="https://modao.cc/agent-py/static/source/js/iconify-icon.min.js"></script>
+<style>
+  * { -webkit-tap-highlight-color: transparent; }
+  body { font-family:-apple-system,BlinkMacSystemFont,"PingFang SC","Hiragino Sans GB","Microsoft YaHei",sans-serif; color:#17241F; }
+  .num { font-variant-numeric: tabular-nums; letter-spacing:-0.02em; }
+  .scroll-area { scrollbar-width:none; -ms-overflow-style:none; }
+  .scroll-area::-webkit-scrollbar { display:none; width:0; height:0; }
+</style>
+</head>
+<body class="w-full h-full m-0 overflow-hidden flex items-center justify-center bg-[#E8EDE9]">
+<div class="w-full h-full max-w-[393px] max-h-[852px] bg-[#F4F7F5] flex flex-col overflow-hidden relative">
+<header class="shrink-0 px-5 pt-4 pb-3">
+<div class="flex items-center justify-between">
+<a aria-label="返回设置" class="w-9 h-9 rounded-full bg-white border border-[#ECEFED] flex items-center justify-center text-[#4B5A53]" href="https://modao.cc/agent-py/workspace/6addbaacde2fb8a03b1662d7/expense-tracker.html/settings.html?render_html=true">
+<iconify-icon class="text-[16px]" icon="ph:caret-left"></iconify-icon>
+</a>
+<p class="text-[14px] font-semibold">记账提醒</p>
+<button class="text-[11px] text-[#1F8A5C]" onclick="testReminder()" type="button">试听</button>
+</div>
+</header>
+<main class="flex-1 min-h-0 overflow-y-auto overflow-x-hidden scroll-area px-5 pb-8" style="scrollbar-width:none;-ms-overflow-style:none;">
+<!-- 主开关 -->
+<section class="rounded-[22px] bg-white border border-[#ECEFED] px-4 py-4">
+<div class="flex items-center gap-3">
+<div class="w-10 h-10 rounded-[13px] bg-[#E7F4EC] flex items-center justify-center">
+<iconify-icon class="text-[20px] text-[#1F8A5C]" icon="ph:bell-ringing"></iconify-icon>
+</div>
+<div class="flex-1">
+<p class="text-[13.5px] font-medium">每日记账提醒</p>
+<p class="text-[10.5px] text-[#8A968F] mt-0.5">在你指定的时间提醒补充今天的花销</p>
+</div>
+<button aria-label="开关每日提醒" class="w-11 h-6 rounded-full bg-[#1F8A5C] relative transition" id="mainToggle" onclick="toggleMain()" type="button">
+<span class="absolute top-0.5 left-[22px] w-5 h-5 rounded-full bg-white shadow transition-all" id="mainKnob"></span>
+</button>
+</div>
+</section>
+<!-- 提醒时间 -->
+<section class="mt-3 rounded-[22px] bg-white border border-[#ECEFED] px-4 py-4" id="timeSection">
+<div class="flex items-center justify-between">
+<p class="text-[12.5px] font-medium">提醒时间</p>
+<span class="text-[10.5px] text-[#1F8A5C]" id="sectionState">已开启</span>
+</div>
+<div class="flex items-end justify-center gap-1 mt-3">
+<div class="text-center">
+<p class="num text-[40px] font-semibold leading-none" id="hourText">21</p>
+<p class="text-[9.5px] text-[#8A968F] mt-1">时</p>
+</div>
+<p class="num text-[32px] font-semibold text-[#B4BDB7] pb-4">:</p>
+<div class="text-center">
+<p class="num text-[40px] font-semibold leading-none" id="minuteText">30</p>
+<p class="text-[9.5px] text-[#8A968F] mt-1">分</p>
+</div>
+</div>
+<div class="mt-3 rounded-[12px] bg-[#F4F7F5] px-3.5 py-2.5 flex items-center gap-1.5 justify-center">
+<iconify-icon class="text-[12px] text-[#8A968F]" icon="ph:clock"></iconify-icon>
+<p class="text-[10.5px] text-[#4B5A53]">下次提醒：今天 <span class="num font-medium" id="nextTime">21:30</span></p>
+</div>
+<div class="flex gap-1.5 mt-3">
+<button class="flex-1 py-2 rounded-[10px] bg-[#F4F7F5] text-[11px] text-[#4B5A53] active:bg-[#E7F4EC]" onclick="setTime(8, 30)" type="button">08:30</button>
+<button class="flex-1 py-2 rounded-[10px] bg-[#F4F7F5] text-[11px] text-[#4B5A53] active:bg-[#E7F4EC]" onclick="setTime(12, 30)" type="button">12:30</button>
+<button class="flex-1 py-2 rounded-[10px] bg-[#F4F7F5] text-[11px] text-[#4B5A53] active:bg-[#E7F4EC]" onclick="setTime(21, 30)" type="button">21:30</button>
+<button class="flex-1 py-2 rounded-[10px] bg-[#F4F7F5] text-[11px] text-[#4B5A53] active:bg-[#E7F4EC]" onclick="setTime(22, 0)" type="button">22:00</button>
+</div>
+</section>
+<!-- 重复 -->
+<section class="mt-3 rounded-[22px] bg-white border border-[#ECEFED] px-4 py-4">
+<div class="flex items-center justify-between mb-3">
+<p class="text-[12.5px] font-medium">重复周期</p>
+<span class="text-[10.5px] text-[#8A968F]">工作日优先</span>
+</div>
+<div class="grid grid-cols-7 gap-1.5">
+<button class="day-chip py-2 rounded-[10px] text-[11px] bg-[#1F8A5C] text-white" data-day="一" onclick="toggleDay(this)" type="button">一</button>
+<button class="day-chip py-2 rounded-[10px] text-[11px] bg-[#1F8A5C] text-white" data-day="二" onclick="toggleDay(this)" type="button">二</button>
+<button class="day-chip py-2 rounded-[10px] text-[11px] bg-[#1F8A5C] text-white" data-day="三" onclick="toggleDay(this)" type="button">三</button>
+<button class="day-chip py-2 rounded-[10px] text-[11px] bg-[#1F8A5C] text-white" data-day="四" onclick="toggleDay(this)" type="button">四</button>
+<button class="day-chip py-2 rounded-[10px] text-[11px] bg-[#1F8A5C] text-white" data-day="五" onclick="toggleDay(this)" type="button">五</button>
+<button class="day-chip py-2 rounded-[10px] text-[11px] bg-[#F4F7F5] text-[#8A968F]" data-day="六" onclick="toggleDay(this)" type="button">六</button>
+<button class="day-chip py-2 rounded-[10px] text-[11px] bg-[#1F8A5C] text-white" data-day="日" onclick="toggleDay(this)" type="button">日</button>
+</div>
+<p class="text-[10px] text-[#8A968F] mt-2" id="dayHint">当前：每周一至五及周日提醒</p>
+</section>
+<!-- 提醒方式 -->
+<section class="mt-3 rounded-[22px] bg-white border border-[#ECEFED] overflow-hidden">
+<div class="flex items-center gap-3 px-4 py-3.5 border-b border-[#F2F5F3]">
+<div class="flex-1">
+<p class="text-[12.5px]">二次提醒</p>
+<p class="text-[10px] text-[#8A968F] mt-0.5">首次未记账时，23:00 再提醒一次</p>
+</div>
+<button aria-label="二次提醒" class="w-11 h-6 rounded-full bg-[#D8E0DB] relative transition" onclick="toggleSecond()" type="button">
+<span class="absolute top-0.5 left-0.5 w-5 h-5 rounded-full bg-white shadow transition-all" id="secondKnob"></span>
+</button>
+</div>
+<div class="flex items-center gap-3 px-4 py-3.5">
+<div class="flex-1">
+<p class="text-[12.5px]">提醒文案</p>
+<p class="text-[10px] text-[#8A968F] mt-0.5" id="copyPreview">「今天花了多少？30 秒记一笔就睡吧 🌙」</p>
+</div>
+<button class="text-[10.5px] text-[#1F8A5C] border border-[#DCEBE3] rounded-full px-2.5 py-1" onclick="cycleCopy()" type="button">换一句</button>
+</div>
+</section>
+<div class="mt-3 rounded-[16px] bg-[#F4F7F5] px-4 py-3 flex items-start gap-2">
+<iconify-icon class="text-[13px] text-[#8A968F] mt-0.5 shrink-0" icon="ph:info"></iconify-icon>
+<p class="text-[10px] text-[#8A968F] leading-relaxed">需要开启系统通知权限，提醒才能正常触达。若长时间未收到提醒，请检查手机的通知与免打扰设置。</p>
+</div>
+</main>
+<div class="shrink-0 px-5 py-3 bg-white border-t border-[#ECEFED]">
+<a class="block w-full py-3 rounded-[14px] bg-[#1F8A5C] text-white text-[13px] font-medium text-center active:bg-[#146B46]" href="https://modao.cc/agent-py/workspace/6addbaacde2fb8a03b1662d7/expense-tracker.html/settings.html?render_html=true">保存提醒设置</a>
+</div>
+<div class="hidden absolute left-1/2 -translate-x-1/2 bottom-[92px] z-50 bg-[#17241F] text-white text-[12px] px-4 py-2.5 rounded-full shadow-lg max-w-[300px] text-center" id="toast"></div>
+</div>
+<script>
+    let mainOn = true;
+    let secondOn = false;
+    let hour = 21;
+    let minute = 30;
+    const copies = [
+      '「今天花了多少？30 秒记一笔就睡吧 🌙」',
+      '「别忘了今天的奶茶和地铁，顺手记一下 ☕」',
+      '「坚持记账 214 天啦，今天的账还差一笔 ✍️」'
+    ];
+    let copyIndex = 0;
+
+    function toggleMain() {
+      mainOn = !mainOn;
+      const knob = document.getElementById('mainKnob');
+      const track = document.getElementById('mainToggle');
+      track.className = 'w-11 h-6 rounded-full relative transition ' + (mainOn ? 'bg-[#1F8A5C]' : 'bg-[#D8E0DB]');
+      knob.className = 'absolute top-0.5 w-5 h-5 rounded-full bg-white shadow transition-all ' + (mainOn ? 'left-[22px]' : 'left-0.5');
+      document.getElementById('timeSection').classList.toggle('opacity-50', !mainOn);
+      document.getElementById('timeSection').classList.toggle('pointer-events-none', !mainOn);
+      const state = document.getElementById('sectionState');
+      state.textContent = mainOn ? '已开启' : '已关闭';
+      state.className = 'text-[10.5px] ' + (mainOn ? 'text-[#1F8A5C]' : 'text-[#8A968F]');
+      document.getElementById('nextTime').textContent = mainOn ? String(hour).padStart(2, '0') + ':' + String(minute).padStart(2, '0') : '--:--';
+    }
+
+    function setTime(h, m) {
+      hour = h;
+      minute = m;
+      const hh = String(h).padStart(2, '0');
+      const mm = String(m).padStart(2, '0');
+      document.getElementById('hourText').textContent = hh;
+      document.getElementById('minuteText').textContent = mm;
+      document.getElementById('nextTime').textContent = hh + ':' + mm;
+      showToast('提醒时间已设为 ' + hh + ':' + mm);
+    }
+
+    function toggleDay(btn) {
+      const on = btn.classList.contains('bg-[#1F8A5C]');
+      btn.className = 'day-chip py-2 rounded-[10px] text-[11px] ' + (on ? 'bg-[#F4F7F5] text-[#8A968F]' : 'bg-[#1F8A5C] text-white');
+      const active = Array.from(document.querySelectorAll('.day-chip'))
+        .filter(function (b) { return b.classList.contains('bg-[#1F8A5C]'); })
+        .map(function (b) { return b.dataset.day; });
+      document.getElementById('dayHint').textContent = active.length === 0
+        ? '当前：未选择任何重复日，提醒不会触发'
+        : '当前：每周' + active.join('、') + ' 提醒';
+    }
+
+    function toggleSecond() {
+      secondOn = !secondOn;
+      const knob = document.getElementById('secondKnob');
+      const track = knob.parentElement;
+      track.className = 'w-11 h-6 rounded-full relative transition ' + (secondOn ? 'bg-[#1F8A5C]' : 'bg-[#D8E0DB]');
+      knob.className = 'absolute top-0.5 w-5 h-5 rounded-full bg-white shadow transition-all ' + (secondOn ? 'left-[22px]' : 'left-0.5');
+    }
+
+    function cycleCopy() {
+      copyIndex = (copyIndex + 1) % copies.length;
+      document.getElementById('copyPreview').textContent = copies[copyIndex];
+    }
+
+    function testReminder() {
+      showToast('小账本提醒：今天花了多少？30 秒记一笔就睡吧 🌙');
+    }
+
+    function showToast(msg) {
+      const toast = document.getElementById('toast');
+      toast.textContent = msg;
+      toast.classList.remove('hidden');
+      clearTimeout(window.__toastTimer);
+      window.__toastTimer = setTimeout(function () { toast.classList.add('hidden'); }, 2200);
+    }
+  </script>
+</body>
+</html>

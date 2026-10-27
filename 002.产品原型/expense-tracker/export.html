@@ -1,0 +1,263 @@
+<!DOCTYPE html>
+
+<html class="w-full h-full overflow-hidden" lang="zh-CN">
+<head>
+<meta charset="utf-8"/>
+<meta content="width=device-width, initial-scale=1.0" name="viewport"/>
+<title>数据导出 · 小账本</title>
+<script src="https://modao.cc/agent-py/static/source/js/tailwindcss.js"></script>
+<script src="https://modao.cc/agent-py/static/source/js/iconify-icon.min.js"></script>
+<style>
+  * { -webkit-tap-highlight-color: transparent; }
+  body { font-family:-apple-system,BlinkMacSystemFont,"PingFang SC","Hiragino Sans GB","Microsoft YaHei",sans-serif; color:#17241F; }
+  .num { font-variant-numeric: tabular-nums; letter-spacing:-0.02em; }
+  .scroll-area { scrollbar-width:none; -ms-overflow-style:none; }
+  .scroll-area::-webkit-scrollbar { display:none; width:0; height:0; }
+  .chip-active { background:#1F8A5C; color:#fff; border-color:#1F8A5C; }
+  .switch-on { background:#1F8A5C; }
+</style>
+</head>
+<body class="w-full h-full m-0 overflow-hidden flex items-center justify-center bg-[#E8EDE9]">
+<div class="w-full h-full max-w-[393px] max-h-[852px] bg-[#F4F7F5] flex flex-col overflow-hidden relative">
+<header class="shrink-0 px-5 pt-4 pb-3">
+<div class="flex items-center justify-between">
+<a aria-label="返回设置" class="w-9 h-9 rounded-full bg-white border border-[#ECEFED] flex items-center justify-center text-[#4B5A53]" href="https://modao.cc/agent-py/workspace/6addbaacde2fb8a03b1662d7/expense-tracker.html/settings.html?render_html=true">
+<iconify-icon class="text-[16px]" icon="ph:caret-left"></iconify-icon>
+</a>
+<p class="text-[14px] font-semibold">数据导出</p>
+<a class="text-[11px] text-[#1F8A5C]" href="https://modao.cc/agent-py/workspace/6addbaacde2fb8a03b1662d7/expense-tracker.html/export-history.html?render_html=true">导出记录</a>
+</div>
+</header>
+<main class="flex-1 min-h-0 overflow-y-auto overflow-x-hidden scroll-area px-5 pb-6" style="scrollbar-width:none;-ms-overflow-style:none;">
+<!-- 说明卡 -->
+<section class="rounded-[22px] bg-white border border-[#ECEFED] px-4 py-4">
+<div class="flex items-start gap-3">
+<div class="w-10 h-10 rounded-[13px] bg-[#E7F4EC] flex items-center justify-center shrink-0">
+<iconify-icon class="text-[20px] text-[#1F8A5C]" icon="ph:file-csv"></iconify-icon>
+</div>
+<div>
+<p class="text-[13px] font-medium">导出为 CSV 表格</p>
+<p class="text-[10.5px] text-[#8A968F] mt-1 leading-relaxed">可用 Excel、Numbers、WPS 打开；每行一笔流水，UTF-8 编码，含完整字段与中文表头。</p>
+</div>
+</div>
+</section>
+<!-- 时间范围 -->
+<section class="mt-4">
+<h2 class="text-[12px] font-semibold mb-2 px-1">选择时间范围</h2>
+<div class="flex flex-wrap gap-1.5">
+<button class="range-chip chip-active text-[11.5px] px-3 py-1.5 rounded-full border border-[#ECEFED] bg-white text-[#4B5A53]" data-range="本月" onclick="pickRange(this)" type="button">本月（10月）</button>
+<button class="range-chip text-[11.5px] px-3 py-1.5 rounded-full border border-[#ECEFED] bg-white text-[#4B5A53]" data-range="上月" onclick="pickRange(this)" type="button">上月</button>
+<button class="range-chip text-[11.5px] px-3 py-1.5 rounded-full border border-[#ECEFED] bg-white text-[#4B5A53]" data-range="近3个月" onclick="pickRange(this)" type="button">近 3 个月</button>
+<button class="range-chip text-[11.5px] px-3 py-1.5 rounded-full border border-[#ECEFED] bg-white text-[#4B5A53]" data-range="今年" onclick="pickRange(this)" type="button">今年</button>
+<button class="range-chip text-[11.5px] px-3 py-1.5 rounded-full border border-[#ECEFED] bg-white text-[#4B5A53]" data-range="全部" onclick="pickRange(this)" type="button">全部数据</button>
+<button class="range-chip text-[11.5px] px-3 py-1.5 rounded-full border border-[#ECEFED] bg-white text-[#4B5A53]" data-range="自定义" onclick="pickRange(this)" type="button">自定义</button>
+</div>
+<div class="hidden mt-2 grid grid-cols-2 gap-2" id="customRange">
+<label class="rounded-[12px] bg-white border border-[#ECEFED] px-3 py-2 block">
+<span class="text-[9.5px] text-[#8A968F]">开始日期</span>
+<input class="block w-full bg-transparent outline-none num text-[12px] mt-0.5" type="date" value="2026-09-01"/>
+</label>
+<label class="rounded-[12px] bg-white border border-[#ECEFED] px-3 py-2 block">
+<span class="text-[9.5px] text-[#8A968F]">结束日期</span>
+<input class="block w-full bg-transparent outline-none num text-[12px] mt-0.5" type="date" value="2026-10-24"/>
+</label>
+</div>
+<div class="mt-2 flex items-center gap-1.5 px-1">
+<iconify-icon class="text-[12px] text-[#8A968F]" icon="ph:info"></iconify-icon>
+<p class="text-[10px] text-[#8A968F]">当前范围：<span class="text-[#4B5A53]" id="rangeLabel">2026-10-01 至 2026-10-24</span> · 预计 <span class="num text-[#1F8A5C]" id="countLabel">36</span> 笔</p>
+</div>
+</section>
+<!-- 类型 -->
+<section class="mt-4">
+<h2 class="text-[12px] font-semibold mb-2 px-1">包含内容</h2>
+<div class="bg-white border border-[#ECEFED] rounded-[18px] overflow-hidden">
+<div class="flex items-center gap-3 px-4 py-3 border-b border-[#F2F5F3]">
+<div class="flex-1">
+<p class="text-[12.5px]">支出流水</p>
+<p class="text-[10px] text-[#8A968F] mt-0.5">28 笔 · 合计 ¥4,286.40</p>
+</div>
+<button aria-label="包含支出" class="switch-expense w-10 h-[22px] rounded-full switch-on relative transition" onclick="toggleSwitch('expense')" type="button">
+<span class="absolute top-0.5 left-[20px] w-[18px] h-[18px] rounded-full bg-white shadow transition-all"></span>
+</button>
+</div>
+<div class="flex items-center gap-3 px-4 py-3 border-b border-[#F2F5F3]">
+<div class="flex-1">
+<p class="text-[12.5px]">收入流水</p>
+<p class="text-[10px] text-[#8A968F] mt-0.5">8 笔 · 合计 ¥7,707.00</p>
+</div>
+<button aria-label="包含收入" class="switch-income w-10 h-[22px] rounded-full switch-on relative transition" onclick="toggleSwitch('income')" type="button">
+<span class="absolute top-0.5 left-[20px] w-[18px] h-[18px] rounded-full bg-white shadow transition-all"></span>
+</button>
+</div>
+<div class="flex items-center gap-3 px-4 py-3">
+<div class="flex-1">
+<p class="text-[12.5px]">仅导出备注非空的流水</p>
+<p class="text-[10px] text-[#8A968F] mt-0.5">过滤掉未填写备注的记录</p>
+</div>
+<button aria-label="仅导出有备注" class="switch-note w-10 h-[22px] rounded-full bg-[#D8E0DB] relative transition" onclick="toggleSwitch('note')" type="button">
+<span class="absolute top-0.5 left-0.5 w-[18px] h-[18px] rounded-full bg-white shadow transition-all"></span>
+</button>
+</div>
+</div>
+</section>
+<!-- CSV 字段说明 -->
+<section class="mt-4">
+<div class="flex items-center justify-between px-1 mb-2">
+<h2 class="text-[12px] font-semibold">CSV 字段说明</h2>
+<span class="text-[10px] text-[#8A968F]">共 7 列</span>
+</div>
+<div class="bg-white border border-[#ECEFED] rounded-[18px] overflow-hidden">
+<div class="grid grid-cols-[80px_1fr] text-[10px] text-[#8A968F] bg-[#FAFCFB] px-4 py-2">
+<span>字段名</span><span>说明 / 示例</span>
+</div>
+<div class="grid grid-cols-[80px_1fr] text-[11px] px-4 py-2.5 border-t border-[#F2F5F3] items-center">
+<span class="text-[#4B5A53]">日期</span><span class="text-[#8A968F] num">2026-10-24</span>
+</div>
+<div class="grid grid-cols-[80px_1fr] text-[11px] px-4 py-2.5 border-t border-[#F2F5F3] items-center">
+<span class="text-[#4B5A53]">时间</span><span class="text-[#8A968F] num">12:20:00</span>
+</div>
+<div class="grid grid-cols-[80px_1fr] text-[11px] px-4 py-2.5 border-t border-[#F2F5F3] items-center">
+<span class="text-[#4B5A53]">类型</span><span class="text-[#8A968F]">支出 / 收入</span>
+</div>
+<div class="grid grid-cols-[80px_1fr] text-[11px] px-4 py-2.5 border-t border-[#F2F5F3] items-center">
+<span class="text-[#4B5A53]">分类</span><span class="text-[#8A968F]">餐饮</span>
+</div>
+<div class="grid grid-cols-[80px_1fr] text-[11px] px-4 py-2.5 border-t border-[#F2F5F3] items-center">
+<span class="text-[#4B5A53]">金额</span><span class="text-[#8A968F] num">38.00（元，两位小数）</span>
+</div>
+<div class="grid grid-cols-[80px_1fr] text-[11px] px-4 py-2.5 border-t border-[#F2F5F3] items-center">
+<span class="text-[#4B5A53]">备注</span><span class="text-[#8A968F]">公司楼下的牛腩饭</span>
+</div>
+<div class="grid grid-cols-[80px_1fr] text-[11px] px-4 py-2.5 border-t border-[#F2F5F3] items-center">
+<span class="text-[#4B5A53]">流水 ID</span><span class="text-[#8A968F] num">TX-20261024-1220-0038</span>
+</div>
+</div>
+<p class="text-[10px] text-[#9AA69F] mt-2 px-1 leading-relaxed">金额以正数保存，通过「类型」列区分收支；备注中的逗号与换行会自动转义，不会错列。</p>
+</section>
+<!-- 预览 -->
+<section class="mt-4">
+<h2 class="text-[12px] font-semibold mb-2 px-1">导出预览</h2>
+<div class="rounded-[14px] bg-[#1D2A24] px-3 py-3 overflow-x-auto" style="scrollbar-width:none;-ms-overflow-style:none;">
+<pre class="text-[9px] leading-[1.7] text-[#B8D8C7] whitespace-pre num">日期,时间,类型,分类,金额,备注,流水ID
+2026-10-24,12:20:00,支出,餐饮,38.00,公司楼下的牛腩饭,TX-20261024-1220-0038
+2026-10-24,08:42:00,支出,交通,12.00,地铁通勤 · 往返,TX-20261024-0842-0037
+2026-10-23,09:30:00,收入,工资,7200.00,10 月薪资到账,TX-20261023-0930-0032
+...</pre>
+</div>
+</section>
+<div class="mt-3 rounded-[14px] bg-[#FFFBF0] border border-[#F7ECCF] px-3.5 py-2.5 flex items-start gap-2">
+<iconify-icon class="text-[13px] text-[#C98A2B] mt-0.5 shrink-0" icon="ph:shield-check"></iconify-icon>
+<p class="text-[10px] text-[#9A6B22] leading-relaxed">导出文件仅保存在本机，分享时请确认接收方可信。文件包含你的消费明细，请妥善保管。</p>
+</div>
+</main>
+<!-- 底部导出 -->
+<div class="shrink-0 bg-white border-t border-[#ECEFED] px-5 py-3">
+<div class="flex items-center justify-between mb-2">
+<p class="text-[10.5px] text-[#8A968F]">文件大小约 <span class="num">18 KB</span></p>
+<p class="text-[10.5px] text-[#8A968F]">格式：<span class="text-[#4B5A53]">CSV · UTF-8</span></p>
+</div>
+<div class="flex gap-2">
+<button class="flex-1 py-3 rounded-[14px] bg-[#1F8A5C] text-white text-[13px] font-medium flex items-center justify-center gap-1.5 active:bg-[#146B46]" onclick="openShare()" type="button">
+<iconify-icon class="text-[15px]" icon="ph:export"></iconify-icon>导出并分享
+        </button>
+<button aria-label="仅保存到本机" class="w-[52px] py-3 rounded-[14px] bg-[#F4F7F5] flex items-center justify-center text-[#4B5A53] active:bg-[#EAF0EC]" onclick="openShare()" type="button">
+<iconify-icon class="text-[17px]" icon="ph:download-simple"></iconify-icon>
+</button>
+</div>
+<a class="block text-center text-[10px] text-[#8A968F] mt-1.5" href="https://modao.cc/agent-py/workspace/6addbaacde2fb8a03b1662d7/expense-tracker.html/export-history.html?render_html=true">查看历史导出记录</a>
+</div>
+<!-- 分享弹层 -->
+<div class="hidden absolute inset-0 z-30 bg-[rgba(23,36,31,0.42)]" id="shareBackdrop" onclick="closeShare()"></div>
+<section class="hidden absolute inset-x-0 bottom-0 z-40 bg-white rounded-t-[24px] px-5 pt-3 pb-5" id="shareSheet">
+<div class="w-9 h-1 rounded-full bg-[#E2E8E4] mx-auto mb-4"></div>
+<div class="flex items-center justify-between">
+<h2 class="text-[15px] font-semibold">分享导出文件</h2>
+<button class="w-8 h-8 rounded-full bg-[#F4F7F5] flex items-center justify-center text-[#4B5A53]" onclick="closeShare()" type="button">
+<iconify-icon class="text-[15px]" icon="ph:x"></iconify-icon>
+</button>
+</div>
+<div class="mt-3 rounded-[14px] bg-[#F4F7F5] px-3.5 py-2.5 flex items-center gap-2.5">
+<iconify-icon class="text-[18px] text-[#1F8A5C]" icon="ph:file-csv"></iconify-icon>
+<div class="flex-1">
+<p class="text-[11.5px] font-medium num">小账本_2026-10-01_2026-10-24.csv</p>
+<p class="text-[10px] text-[#8A968F] mt-0.5">36 笔流水 · 18 KB</p>
+</div>
+</div>
+<div class="grid grid-cols-4 gap-2 mt-4">
+<button class="flex flex-col items-center gap-1.5 py-2 rounded-[12px] active:bg-[#F7FAF8]" onclick="showShared()" type="button">
+<span class="w-10 h-10 rounded-full bg-[#E7F4EC] flex items-center justify-center">
+<iconify-icon class="text-[19px] text-[#1F8A5C]" icon="ph:wechat-logo"></iconify-icon>
+</span>
+<span class="text-[10px] text-[#4B5A53]">微信</span>
+</button>
+<button class="flex flex-col items-center gap-1.5 py-2 rounded-[12px] active:bg-[#F7FAF8]" onclick="showShared()" type="button">
+<span class="w-10 h-10 rounded-full bg-[#E9F1FF] flex items-center justify-center">
+<iconify-icon class="text-[19px] text-[#3F6FB0]" icon="ph:envelope-simple"></iconify-icon>
+</span>
+<span class="text-[10px] text-[#4B5A53]">邮件</span>
+</button>
+<button class="flex flex-col items-center gap-1.5 py-2 rounded-[12px] active:bg-[#F7FAF8]" onclick="showShared()" type="button">
+<span class="w-10 h-10 rounded-full bg-[#F2EEFF] flex items-center justify-center">
+<iconify-icon class="text-[19px] text-[#7C5FD3]" icon="ph:folder-simple"></iconify-icon>
+</span>
+<span class="text-[10px] text-[#4B5A53]">文件</span>
+</button>
+<button class="flex flex-col items-center gap-1.5 py-2 rounded-[12px] active:bg-[#F7FAF8]" onclick="showShared()" type="button">
+<span class="w-10 h-10 rounded-full bg-[#FFF1E4] flex items-center justify-center">
+<iconify-icon class="text-[19px] text-[#C98A2B]" icon="ph:airplane-tilt"></iconify-icon>
+</span>
+<span class="text-[10px] text-[#4B5A53]">隔空投送</span>
+</button>
+</div>
+<p class="text-[10px] text-[#9AA69F] text-center mt-2">文件已生成，选择分享渠道即可发送</p>
+</section>
+<div class="hidden absolute left-1/2 -translate-x-1/2 bottom-[120px] z-50 bg-[#17241F] text-white text-[12px] px-4 py-2.5 rounded-full shadow-lg" id="toast"></div>
+</div>
+<script>
+    const ranges = {
+      '本月': { label: '2026-10-01 至 2026-10-24', count: 36 },
+      '上月': { label: '2026-09-01 至 2026-09-30', count: 48 },
+      '近3个月': { label: '2026-08-01 至 2026-10-24', count: 121 },
+      '今年': { label: '2026-01-01 至 2026-10-24', count: 386 },
+      '全部': { label: '全部历史数据', count: 1286 },
+      '自定义': { label: '2026-09-01 至 2026-10-24', count: 84 }
+    };
+
+    function pickRange(btn) {
+      document.querySelectorAll('.range-chip').forEach(function (b) { b.classList.remove('chip-active'); });
+      btn.classList.add('chip-active');
+      const range = ranges[btn.dataset.range];
+      document.getElementById('rangeLabel').textContent = range.label;
+      document.getElementById('countLabel').textContent = String(range.count);
+      document.getElementById('customRange').classList.toggle('hidden', btn.dataset.range !== '自定义');
+    }
+
+    const switchState = { expense: true, income: true, note: false };
+    function toggleSwitch(key) {
+      switchState[key] = !switchState[key];
+      const btn = document.querySelector('.switch-' + key);
+      const knob = btn.querySelector('span');
+      btn.classList.toggle('switch-on', switchState[key]);
+      btn.classList.toggle('bg-[#D8E0DB]', !switchState[key]);
+      knob.classList.toggle('left-[20px]', switchState[key]);
+      knob.classList.toggle('left-0.5', !switchState[key]);
+    }
+
+    function openShare() {
+      document.getElementById('shareBackdrop').classList.remove('hidden');
+      document.getElementById('shareSheet').classList.remove('hidden');
+    }
+    function closeShare() {
+      document.getElementById('shareBackdrop').classList.add('hidden');
+      document.getElementById('shareSheet').classList.add('hidden');
+    }
+    function showShared() {
+      closeShare();
+      const toast = document.getElementById('toast');
+      toast.textContent = '导出成功 · 小账本 CSV 已生成';
+      toast.classList.remove('hidden');
+      setTimeout(function () { toast.classList.add('hidden'); }, 2000);
+    }
+  </script>
+</body>
+</html>
